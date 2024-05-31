@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import Welcome from "../components/Welcome";
 import { useSelector, useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
-import setAuthToken from "../util/setAuthToken";
+import { useLocation, useNavigate } from "react-router-dom";
+import { setAuthToken } from "../util/auth";
 import { setCurrentUser } from "../store/authSlice";
 
 const HomePage: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const userToken = params.get("userToken");
 
@@ -22,9 +23,9 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     if (jwtToken) {
-      localStorage.setItem("jwtToken", jwtToken);
-      setAuthToken(jwtToken);
+      setAuthToken(jwtToken, (user as { _id: string })._id);
       dispatch(setCurrentUser(user));
+      navigate("/");
     }
   }, [jwtToken]);
 

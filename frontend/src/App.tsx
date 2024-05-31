@@ -4,13 +4,19 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import RootLayout from "./pages/Root";
 import ErrorPage from "./pages/Error";
 import HomePage from "./pages/Home";
+import FriendsPage from "./pages/Friends";
+import { checkAuthLoader, tokenLoader } from "./util/auth";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
     errorElement: <ErrorPage />,
-    children: [{ index: true, element: <HomePage /> }],
+    loader: tokenLoader,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: "friends", element: <FriendsPage />, loader: checkAuthLoader },
+    ],
   },
 ]);
 

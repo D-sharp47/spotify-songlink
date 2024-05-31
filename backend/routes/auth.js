@@ -1,52 +1,60 @@
 import express from "express";
+import passport from "passport";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
-
 dotenv.config();
-const port = process.env.PORT || 5000;
-const clientId = process.env.SPOTIFY_CLIENT_ID;
-const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-const redirectUri = `http://localhost:${port}/api/auth/callback`;
 
-const getAuth = (req, res) => {
-  const scopes =
-    "playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private";
-  const queryParams = new URLSearchParams({
-    response_type: "code",
-    client_id: clientId,
-    scope: scopes,
-    redirect_uri: redirectUri,
-  });
-  res.redirect(`https://accounts.spotify.com/authorize?${queryParams}`);
+// Authentication Route
+router.get(
+  "/",
+  passport.authenticate("spotify", {
+    scope: [
+      " playlist-read-collaborative playlist-modify-public playlist-modify-private",
+    ],
+    session: false,
+  })
+);
+
+// Spotify Callback Route
+router.get(
+  "/callback",
+  passport.authenticate("spotify", {
+    session: false,
+  }),
+  (req, res) => {
+    const userAndToken = JSON.stringify(req.user);
+    const encodedUserAndToken = encodeURIComponent(userAndToken);
+    res.redirect(`http://localhost:5173?userToken=${encodedUserAndToken}`);
+  }
+);
+
+export const authenticateJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const userIdHeader = req.headers.userid;
+
+  if (authHeader && userIdHeader) {
+    const token = authHeader;
+    const userId = userIdHeader;
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err) {
+        console.error("JWT verification error:", err);
+        return res.sendStatus(403); // Forbidden
+      }
+
+      req.user = {
+        userId: userId,
+        token: token,
+        // Add any additional user information from the decoded token if needed
+      };
+      console.log(req.user);
+      next();
+    });
+  } else {
+    res.sendStatus(401); // Unauthorized
+  }
 };
-
-const getAccessToken = async (code) => {
-  const bodyParams = new URLSearchParams({
-    grant_type: "authorization_code",
-    code: code,
-    redirect_uri: redirectUri,
-  });
-  const response = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(
-        `${clientId}:${clientSecret}`
-      ).toString("base64")}`,
-    },
-    body: bodyParams.toString(),
-  });
-  const data = await response.json();
-  return data.access_token;
-};
-
-router.get("/", getAuth);
-
-router.get("/callback", async (req, res) => {
-  const code = req.query.code;
-  const token = await getAccessToken(code);
-  res.json({ token });
-});
 
 export default router;
