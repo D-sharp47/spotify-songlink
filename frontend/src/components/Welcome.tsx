@@ -1,9 +1,6 @@
 import React from "react";
 
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
+import { Card, CardContent, Typography, Button } from "@mui/material";
 
 const Welcome: React.FC = () => {
   const handleClick = () => {

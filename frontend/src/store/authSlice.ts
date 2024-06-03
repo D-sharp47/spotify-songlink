@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import isEmpty from "../util/is-empty"
 
-interface AuthState {
+export interface AuthState {
   isAuthenticated: boolean;
   user: object;
 }

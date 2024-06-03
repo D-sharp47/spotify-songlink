@@ -1,4 +1,4 @@
-// import colors from "colors";
+import colors from "colors";
 
 const logger = (req, res, next) => {
   const methodColors = {
@@ -11,7 +11,9 @@ const logger = (req, res, next) => {
   const color = methodColors[req.method] || "white";
 
   console.log(
-    `${req.method} ${req.protocol}:/${req.get("host")}${req.originalUrl}`[color]
+    `\n${req.method} ${req.protocol}:/${req.get("host")}${req.originalUrl}`[
+      color
+    ]
   );
   next();
 };

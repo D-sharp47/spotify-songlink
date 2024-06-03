@@ -9,6 +9,8 @@ import passportConfig from "./config/passport.js";
 
 import auth from "./routes/auth.js";
 import friends from "./routes/friends.js";
+import groups from "./routes/groups.js";
+import users from "./routes/users.js";
 
 dotenv.config();
 const port = process.env.PORT || 8000;
@@ -32,6 +34,8 @@ passportConfig(passport);
 // Routes
 app.use("/api/auth", auth);
 app.use("/api/friends", friends);
+app.use("/api/groups", groups);
+app.use("/api/users", users);
 
 // Error handler
 app.use(notFound);

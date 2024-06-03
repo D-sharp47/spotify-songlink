@@ -47,9 +47,7 @@ export const authenticateJWT = (req, res, next) => {
       req.user = {
         userId: userId,
         token: token,
-        // Add any additional user information from the decoded token if needed
       };
-      console.log(req.user);
       next();
     });
   } else {

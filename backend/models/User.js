@@ -48,7 +48,35 @@ const UserSchema = new Schema({
     },
   },
   friends: {
-    type: [String],
+    type: [
+      {
+        friendId: {
+          type: String,
+          required: true,
+        },
+        status: {
+          type: String,
+          enum: ["req_out", "req_in", "friends"],
+          required: true,
+        },
+      },
+    ],
+    required: false,
+  },
+  groups: {
+    type: [
+      {
+        id: {
+          type: String,
+          required: true,
+        },
+        status: {
+          type: String,
+          enum: ["invited", "member", "admin"],
+          required: true,
+        },
+      },
+    ],
     required: false,
   },
 });

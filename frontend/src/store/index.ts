@@ -1,11 +1,20 @@
-import { configureStore } from "@reduxjs/toolkit";
-
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { loadState, saveState } from "../util/localStorage";
 import authSlice from "./authSlice";
 
-const reducer = {
-  auth: authSlice.reducer
-}
+const persistedState = loadState();
 
-const store = configureStore({reducer});
+const rootReducer = combineReducers({
+  auth: authSlice.reducer,
+});
+
+const store = configureStore({
+  reducer: rootReducer,
+  preloadedState: persistedState
+});
+
+store.subscribe(() => {
+  saveState(store.getState());
+});
 
 export default store;

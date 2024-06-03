@@ -56,6 +56,20 @@ const Header: React.FC = () => {
                     Friends
                   </Button>
                 </NavLink>
+                <NavLink to="/groups" style={{ textDecoration: "none" }}>
+                  <Button
+                    sx={{
+                      my: 2,
+                      color: "white",
+                      display: "block",
+                      "&:hover": {
+                        textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)",
+                      },
+                    }}
+                  >
+                    Groups
+                  </Button>
+                </NavLink>
               </Box>
               <UserMenu />
             </>

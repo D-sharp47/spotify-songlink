@@ -15,6 +15,7 @@ export const setAuthToken = (token?: string | null, userId?: string | null) => {
     delete axios.defaults.headers.common['userId'];
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("expiration");
+    localStorage.removeItem("state");
   }
 };
 
@@ -57,5 +58,5 @@ export const checkAuthLoader = () => {
     return redirect("/");
   }
 
-  return token;
+  return true;
 };
