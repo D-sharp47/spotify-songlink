@@ -1,5 +1,5 @@
-import React, { useState, Suspense } from "react";
-import { useSelector } from "react-redux";
+import React, { Suspense } from "react";
+// import { useSelector } from "react-redux";
 import { useLoaderData, defer, Await } from "react-router-dom";
 import { Button, Grid } from "@mui/material";
 import axios from "axios";
@@ -8,7 +8,7 @@ import Modal from "../components/Modal";
 import CreateGroup from "../components/CreateGroup";
 
 const GroupsPage: React.FC = () => {
-  const userID = useSelector((state: any) => state.auth.user._id);
+  // const userID = useSelector((state: any) => state.auth.user._id);
   const [showGroupModal, setShowGroupModal] = React.useState(false);
   const { groups } = useLoaderData() as { groups: GroupProps[] };
 
@@ -63,6 +63,48 @@ const GroupsPage: React.FC = () => {
         maxWidth="md"
         dismissDialog={toggleGroupModal}
         contents={<CreateGroup />}
+        footerActions={
+          <div style={{ margin: "1rem" }}>
+            <Button
+              variant="outlined"
+              sx={{
+                width: { md: "4.5rem" },
+                paddingLeft: "0rem",
+                marginRight: "1rem",
+                color: "#47a661",
+                borderColor: "#47a661",
+                textAlign: "center",
+                padding: "0.5rem",
+              }}
+              onClick={toggleGroupModal}
+            >
+              Close
+            </Button>
+            <Button
+              // disabled={
+              //     !props.responseText ||
+              //     props.responseText.length > REVIEW_RESPONSE_MAX_LENGTH ||
+              //     (props.editMode && props.responseText === props.initialResponse)
+              // }
+              variant="contained"
+              sx={{
+                whiteSpace: "nowrap",
+                padding: "0.5rem",
+                width: "6.5rem",
+                justifyContent: "center",
+                backgroundColor: "#47a661",
+                "&:hover": {
+                  backgroundColor: "#367a4e",
+                },
+                color: "white",
+              }}
+              // TODO: finish this
+              onClick={() => {}}
+            >
+              Create
+            </Button>
+          </div>
+        }
       />
     </>
   );
@@ -76,7 +118,7 @@ const loadGroups = async () => {
   return [];
 };
 
-export const loader = async (authCheck: () => {}) => {
+export const loader = async (authCheck: () => unknown) => {
   const auth: boolean = authCheck() === true;
 
   if (auth) {

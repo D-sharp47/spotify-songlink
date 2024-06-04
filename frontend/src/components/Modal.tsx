@@ -35,7 +35,7 @@ const Modal: React.FC<ModalProps> = (props) => {
             justifyContent: "space-between",
           }}
         >
-          <Typography variant="h5" color="text.primary">
+          <Typography variant="h4" color="text.primary">
             {props.title}
           </Typography>
           {props.showCloseIcon && (

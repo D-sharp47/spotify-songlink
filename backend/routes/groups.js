@@ -23,6 +23,43 @@ router.get("/", authenticateJWT, async (req, res) => {
   }
 });
 
+router.post("/add", authenticateJWT, async (req, res) => {
+  modifyGroup(req, res, "create");
+});
+
+const modifyGroup = async (req, res, action) => {
+  try {
+    const userId = req.user.userId;
+    const groupName = req.body.groupName;
+    const members = req.body.members.map((member) => {
+      if (member.userId === userId) {
+        return { userId: userId, status: "admin" };
+      } else {
+        return { userId: member.userId, status: "invited" };
+      }
+    });
+    const playlists = req.body.playlists.map((playlist) => {
+      name: playlist;
+    });
+
+    const newGroup = new Group({
+      name: groupName,
+      members,
+      playlists,
+    });
+    await newGroup.save();
+    let user;
+    members.forEach(async (member) => {
+      user = await User.findOne({ _id: member.userId });
+      user.groups.push({ id: newGroup._id, status: member.status });
+    });
+    return json({ message: "Group created successfully" });
+  } catch (error) {
+    console.error("Error creating group:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 const getGroups = async (userGroups) => {
   try {
     const groupIds = userGroups.map((group) => group.id);

@@ -31,7 +31,7 @@ const GroupSchema = new Schema({
       {
         playlistId: {
           type: String,
-          required: true,
+          required: false,
         },
         name: {
           type: String,
@@ -45,10 +45,12 @@ const GroupSchema = new Schema({
     type: {
       songsPerMember: {
         type: Number,
+        default: 5,
         required: true,
       },
       enabled: {
         type: Boolean,
+        default: true,
         required: true,
       },
     },

@@ -47,7 +47,7 @@ const SearchUsers = forwardRef(({ sxProps }: { sxProps?: SxProps }, ref) => {
   return (
     <Autocomplete
       id="user-autocomplete"
-      sx={{ width: "100%" }}
+      sx={{ borderRadius: "0.25rem", backgroundColor: "white", color: "black" }}
       options={options}
       getOptionLabel={(option) => option}
       autoComplete

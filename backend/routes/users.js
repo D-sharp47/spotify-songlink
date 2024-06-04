@@ -8,7 +8,9 @@ router.get("/search", authenticateJWT, async (req, res) => {
   try {
     const { searchTerm } = req.query;
     const users = await User.find({}, "_id");
-    const userIds = users.map((user) => user._id);
+    const currentUserID = req.user.userId;
+    let userIds = users.map((user) => user._id);
+    userIds = userIds.filter((userId) => userId !== currentUserID);
 
     if (searchTerm) {
       const filteredUserIds = userIds.filter((userId) =>

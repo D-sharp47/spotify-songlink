@@ -1,14 +1,16 @@
 import React, { useRef, Suspense } from "react";
 import { useSelector } from "react-redux";
 import { useLoaderData, defer, Await } from "react-router-dom";
-import { Button, Input } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import axios from "axios";
 import Friend from "../components/Friend";
+import SearchUsers from "../components/SearchUsers";
 
 const FriendsPage: React.FC = () => {
+  // Todo: Fix state: any errors/warnings
   const userID = useSelector((state: any) => state.auth.user._id);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { friends } = useLoaderData() as { friends: Object[] };
+  const searchUsersRef = useRef<any>(null);
+  const { friends } = useLoaderData() as { friends: object[] };
 
   const addFriend = async (friendID: string) => {
     try {
@@ -21,10 +23,12 @@ const FriendsPage: React.FC = () => {
     }
   };
 
-  const handleFormSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const friendID = inputRef.current?.value;
-    await addFriend(friendID!);
+  const handleFormSubmit = async () => {
+    const friendID = searchUsersRef.current.getSelectedUser();
+    if (friendID) {
+      await addFriend(friendID);
+      searchUsersRef.current && searchUsersRef.current.clearInput();
+    }
   };
 
   return (
@@ -56,22 +60,16 @@ const FriendsPage: React.FC = () => {
         </Await>
       </Suspense>
       <h1 style={{ color: "white" }}>{userID}: Add Friends</h1>
-      <form onSubmit={handleFormSubmit}>
-        <Input
-          size="medium"
-          inputRef={inputRef}
-          inputProps={{
-            style: {
-              backgroundColor: "white",
-              color: "black",
-              textAlign: "center",
-            },
-          }}
-        />
+      <Stack
+        direction="row"
+        alignItems="center"
+        style={{ marginBottom: "20px" }}
+      >
+        <SearchUsers sxProps={{ width: "12vw" }} ref={searchUsersRef} />
         <Button
           variant="contained"
-          size="medium"
-          type="submit"
+          size="large"
+          onClick={handleFormSubmit}
           sx={{
             my: "1rem",
             ml: "1rem",
@@ -82,9 +80,9 @@ const FriendsPage: React.FC = () => {
             color: "white",
           }}
         >
-          Submit
+          Add
         </Button>
-      </form>
+      </Stack>
     </>
   );
 };
@@ -97,7 +95,8 @@ const loadFriends = async () => {
   return [];
 };
 
-export const loader = async (authCheck: () => {}) => {
+export const loader = async (authCheck: () => unknown) => {
+  // Todo: Fix unknown type
   const auth: boolean = authCheck() === true;
 
   if (auth) {
