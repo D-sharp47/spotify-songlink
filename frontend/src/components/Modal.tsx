@@ -2,7 +2,6 @@ import React from "react";
 import { Close } from "@mui/icons-material";
 import {
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
@@ -17,7 +16,6 @@ export interface ModalProps {
   readonly showCloseIcon?: boolean;
   readonly dismissDialog: () => void;
   readonly contents: JSX.Element;
-  readonly footerActions?: JSX.Element;
 }
 
 const Modal: React.FC<ModalProps> = (props) => {
@@ -46,9 +44,6 @@ const Modal: React.FC<ModalProps> = (props) => {
         </div>
       </DialogTitle>
       <DialogContent>{props.contents}</DialogContent>
-      {!!props.footerActions && (
-        <DialogActions>{props.footerActions}</DialogActions>
-      )}
     </Dialog>
   );
 };

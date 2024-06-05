@@ -28,35 +28,42 @@ router.post("/add", authenticateJWT, async (req, res) => {
 });
 
 const modifyGroup = async (req, res, action) => {
-  try {
-    const userId = req.user.userId;
-    const groupName = req.body.groupName;
-    const members = req.body.members.map((member) => {
-      if (member.userId === userId) {
-        return { userId: userId, status: "admin" };
-      } else {
-        return { userId: member.userId, status: "invited" };
-      }
-    });
-    const playlists = req.body.playlists.map((playlist) => {
-      name: playlist;
-    });
+  if (action === "create") {
+    try {
+      const userId = req.user.userId;
+      const groupName = req.body.name;
+      const members = req.body.members.map((member) => {
+        if (member === userId) {
+          return { userId: member, status: "admin" };
+        } else {
+          return { userId: member, status: "invited" };
+        }
+      });
+      const playlistNames = req.body.playlists;
+      const playlists = playlistNames.map((name) => ({
+        name: name,
+      }));
 
-    const newGroup = new Group({
-      name: groupName,
-      members,
-      playlists,
-    });
-    await newGroup.save();
-    let user;
-    members.forEach(async (member) => {
-      user = await User.findOne({ _id: member.userId });
-      user.groups.push({ id: newGroup._id, status: member.status });
-    });
-    return json({ message: "Group created successfully" });
-  } catch (error) {
-    console.error("Error creating group:", error);
-    res.status(500).json({ error: "Internal server error" });
+      const newGroup = new Group({
+        name: groupName,
+        members,
+        playlists,
+      });
+      await newGroup.save();
+
+      const groupId = newGroup._id.toString();
+
+      for (const member of members) {
+        const user = await User.findOne({ _id: member.userId });
+        user.groups.push({ id: groupId, status: member.status });
+        await user.save();
+      }
+
+      return res.json({ message: "Group created successfully" });
+    } catch (error) {
+      console.error("Error creating group:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
 };
 

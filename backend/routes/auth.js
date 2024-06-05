@@ -34,6 +34,9 @@ export const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
   const userIdHeader = req.headers.userid;
 
+  // console.log("authHeader:", authHeader);
+  // console.log("userIdHeader:", userIdHeader);
+
   if (authHeader && userIdHeader) {
     const token = authHeader;
     const userId = userIdHeader;

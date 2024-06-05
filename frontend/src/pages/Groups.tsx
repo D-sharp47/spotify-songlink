@@ -62,49 +62,7 @@ const GroupsPage: React.FC = () => {
         isOpen={showGroupModal}
         maxWidth="md"
         dismissDialog={toggleGroupModal}
-        contents={<CreateGroup />}
-        footerActions={
-          <div style={{ margin: "1rem" }}>
-            <Button
-              variant="outlined"
-              sx={{
-                width: { md: "4.5rem" },
-                paddingLeft: "0rem",
-                marginRight: "1rem",
-                color: "#47a661",
-                borderColor: "#47a661",
-                textAlign: "center",
-                padding: "0.5rem",
-              }}
-              onClick={toggleGroupModal}
-            >
-              Close
-            </Button>
-            <Button
-              // disabled={
-              //     !props.responseText ||
-              //     props.responseText.length > REVIEW_RESPONSE_MAX_LENGTH ||
-              //     (props.editMode && props.responseText === props.initialResponse)
-              // }
-              variant="contained"
-              sx={{
-                whiteSpace: "nowrap",
-                padding: "0.5rem",
-                width: "6.5rem",
-                justifyContent: "center",
-                backgroundColor: "#47a661",
-                "&:hover": {
-                  backgroundColor: "#367a4e",
-                },
-                color: "white",
-              }}
-              // TODO: finish this
-              onClick={() => {}}
-            >
-              Create
-            </Button>
-          </div>
-        }
+        contents={<CreateGroup toggleGroupModal={toggleGroupModal} />}
       />
     </>
   );
@@ -113,8 +71,10 @@ const GroupsPage: React.FC = () => {
 const loadGroups = async () => {
   const response = await axios.get(`/api/groups`);
   if (response.status < 300) {
+    console.log(response.data);
     return response.data;
   }
+  console.log("Error fetching groups");
   return [];
 };
 

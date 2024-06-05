@@ -3,10 +3,6 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const GroupSchema = new Schema({
-  _id: {
-    type: mongoose.Schema.Types.ObjectId,
-    default: mongoose.Types.ObjectId,
-  },
   name: {
     type: String,
     required: true,
@@ -54,6 +50,7 @@ const GroupSchema = new Schema({
         required: true,
       },
     },
+    required: false,
   },
 });
 

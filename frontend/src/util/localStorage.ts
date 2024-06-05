@@ -14,7 +14,7 @@ export const loadState = () => {
     }
     return parsedState;
   } catch (err) {
-    return undefined;
+    console.error(err);
   }
 };
 
