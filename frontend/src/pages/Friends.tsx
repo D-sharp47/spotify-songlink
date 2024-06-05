@@ -97,7 +97,7 @@ const loadFriends = async () => {
 
 export const loader = async (authCheck: () => unknown) => {
   // Todo: Fix unknown type
-  const auth: boolean = authCheck() === true;
+  const auth: boolean = (await authCheck()) === true;
 
   if (auth) {
     return defer({
