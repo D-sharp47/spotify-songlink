@@ -1,7 +1,6 @@
 import express from "express";
 import passport from "passport";
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
 
 const router = express.Router();
 dotenv.config();
@@ -10,10 +9,7 @@ dotenv.config();
 router.get(
   "/",
   passport.authenticate("spotify", {
-    scope: [
-      " playlist-read-collaborative playlist-modify-public playlist-modify-private",
-    ],
-    session: false,
+    scope: process.env.SCOPE,
   })
 );
 
@@ -24,38 +20,53 @@ router.get(
     session: false,
   }),
   (req, res) => {
-    const userAndToken = JSON.stringify(req.user);
-    const encodedUserAndToken = encodeURIComponent(userAndToken);
-    res.redirect(`http://localhost:5173?userToken=${encodedUserAndToken}`);
+    const { user, accessToken, refreshToken, expires_in } = req.user;
+    const userAndTokens = {
+      user: user,
+      tokens: { accessToken, refreshToken, expires_in },
+    };
+    const encodedUserAndTokenString = encodeURIComponent(
+      JSON.stringify(userAndTokens)
+    );
+    res.redirect(
+      `http://localhost:5173?userToken=${encodedUserAndTokenString}`
+    );
   }
 );
 
-export const authenticateJWT = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  const userIdHeader = req.headers.userid;
+router.post("/refresh", async (req, res) => {
+  const refreshToken = req.body.refreshToken;
 
-  // console.log("authHeader:", authHeader);
-  // console.log("userIdHeader:", userIdHeader);
-
-  if (authHeader && userIdHeader) {
-    const token = authHeader;
-    const userId = userIdHeader;
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) {
-        console.error("JWT verification error:", err);
-        return res.sendStatus(403); // Forbidden
-      }
-
-      req.user = {
-        userId: userId,
-        token: token,
-      };
-      next();
-    });
-  } else {
-    res.sendStatus(401); // Unauthorized
+  if (!refreshToken) {
+    return res.status(400).json({ error: "Refresh token not provided" });
   }
+
+  try {
+    const response = await axios.post(
+      "https://accounts.spotify.com/api/token",
+      {
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+        client_id: process.env.SPOTIFY_CLIENT_ID,
+        client_secret: process.env.SPOTIFY_CLIENT_SECRET,
+      }
+    );
+
+    const { access_token, refresh_token, expires_in } = response.data;
+
+    res.json({ access_token, refresh_token, expires_in });
+  } catch (error) {
+    console.error("Token refresh error:", error.response.data);
+    res.status(500).json({ error: "Failed to refresh token" });
+  }
+});
+
+export const ensureAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  res.redirect("/");
 };
 
 export default router;

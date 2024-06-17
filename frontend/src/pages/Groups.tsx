@@ -26,9 +26,14 @@ const GroupsPage: React.FC = () => {
         }
       >
         <Await resolve={groups}>
-          <Grid container spacing={2}>
+          <Grid
+            container
+            spacing={2}
+            justifyContent="center"
+            sx={{ mb: "10%" }}
+          >
             {groups.map((group: GroupProps) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={group._id}>
+              <Grid item sm={6} md={4} lg={3} key={group._id}>
                 <GroupCard
                   _id={group._id}
                   name={group.name}

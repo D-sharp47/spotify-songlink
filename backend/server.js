@@ -2,9 +2,9 @@ import express from "express";
 import mongoose from "mongoose";
 import passport from "passport";
 import dotenv from "dotenv";
+import session from "express-session";
 import logger from "./middleware/logger.js";
 import errorHandler, { notFound } from "./middleware/error.js";
-import { mongoURI as db } from "./config/keys.js";
 import passportConfig from "./config/passport.js";
 
 import auth from "./routes/auth.js";
@@ -19,14 +19,28 @@ const app = express();
 
 // Connect to MongoDB
 mongoose
-  .connect(db)
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true if using HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // 1 day (adjust as needed)
+    },
+  })
+);
+
 app.use(passport.initialize());
+app.use(passport.session());
 app.use(logger);
 
 passportConfig(passport);

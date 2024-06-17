@@ -2,13 +2,15 @@ import React, { useRef, Suspense } from "react";
 import { useSelector } from "react-redux";
 import { useLoaderData, defer, Await } from "react-router-dom";
 import { Button, Stack } from "@mui/material";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Friend from "../components/Friend";
 import SearchUsers from "../components/SearchUsers";
 
 const FriendsPage: React.FC = () => {
   // Todo: Fix state: any errors/warnings
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const userID = useSelector((state: any) => state.auth.user._id);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const searchUsersRef = useRef<any>(null);
   const { friends } = useLoaderData() as { friends: object[] };
 
@@ -18,8 +20,9 @@ const FriendsPage: React.FC = () => {
       if (response.status < 300) {
         // Update the friends list
       }
-    } catch (error: any) {
-      console.error(error.response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error(axiosError.response?.data);
     }
   };
 

@@ -1,14 +1,19 @@
 import express from "express";
+import axios from "axios";
 import User from "../models/User.js";
-import { authenticateJWT } from "./auth.js";
+// import { ensureAuthenticated } from "./auth.js";
 
 const router = express.Router();
 
-router.get("/search", authenticateJWT, async (req, res) => {
+router.get("/:userId/shortTerm", async (req, res) => {
+  getTracks(req, res, "short_term");
+});
+
+router.get("/search", async (req, res) => {
   try {
     const { searchTerm } = req.query;
     const users = await User.find({}, "_id");
-    const currentUserID = req.user.userId;
+    const currentUserID = req.headers.userid;
     let userIds = users.map((user) => user._id);
     userIds = userIds.filter((userId) => userId !== currentUserID);
 
@@ -25,5 +30,31 @@ router.get("/search", authenticateJWT, async (req, res) => {
     res.status(500).json({ message: "Error fetching users" });
   }
 });
+
+const getTracks = async (req, res, term) => {
+  try {
+    const token = req.headers.authorization;
+    const userId = req.headers.userid;
+    console.log("\n");
+    if (!token || !userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const response = await axios.get(
+      `https://api.spotify.com/v1/me/top/tracks?time_range=${term}&limit=50&offset=0`,
+      {
+        headers: {
+          Authorization: token,
+        },
+      }
+    );
+
+    const tracks = response.data.items;
+    return res.json(tracks);
+  } catch (error) {
+    console.error("Error fetching tracks:", error);
+    res.status(500).json({ message: "Error fetching tracks" });
+  }
+};
 
 export default router;

@@ -7,6 +7,9 @@ import ErrorPage from "./pages/Error";
 import HomePage from "./pages/Home";
 import FriendsPage, { loader as friendsLoader } from "./pages/Friends";
 import GroupPage, { loader as groupLoader } from "./pages/Groups";
+import GroupDetailPage, {
+  loader as groupDetailLoader,
+} from "./pages/GroupDetail";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +28,12 @@ const router = createBrowserRouter([
         path: "groups",
         element: <GroupPage />,
         loader: () => groupLoader(checkAuthLoader),
+      },
+      {
+        path: "groups/:groupId",
+        element: <GroupDetailPage />,
+        loader: ({ params }) =>
+          groupDetailLoader(checkAuthLoader, params.groupId),
       },
     ],
   },

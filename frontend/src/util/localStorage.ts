@@ -1,4 +1,4 @@
-import { setAuthToken } from "./auth";
+import { setToken } from "./auth";
 
 export const loadState = () => {
   try {
@@ -7,14 +7,22 @@ export const loadState = () => {
       return undefined;
     }
     const parsedState = JSON.parse(serializedState);
-    const jwtToken = localStorage.getItem("jwtToken");
+    
+    // Extract token and user ID
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+    const expires_in = Number(localStorage.getItem("expires_in"));
     const userId = parsedState.auth.user._id;
-    if (jwtToken && userId) {
-      setAuthToken(jwtToken, userId);
+
+    if (accessToken && refreshToken && expires_in && userId) {
+      // Set the authentication tokens and user ID
+      setToken({ accessToken, refreshToken, expires_in }, userId);
     }
+
     return parsedState;
   } catch (err) {
     console.error(err);
+    return undefined;
   }
 };
 
@@ -22,7 +30,7 @@ export const saveState = (state: unknown) => {
   try {
     const serializedState = JSON.stringify(state);
     localStorage.setItem('state', serializedState);
-  } catch {
-    // ignore write errors
+  } catch (err) {
+    console.error("Error saving state:", err);
   }
 };

@@ -2,23 +2,39 @@ import React from "react";
 
 import { Card, CardContent, Typography, IconButton, Grid } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { NavLink } from "react-router-dom";
+import axios, { AxiosError } from "axios";
 
 export interface GroupProps {
   readonly _id: string;
   readonly name: string;
-  readonly members: Object[];
-  readonly playlists: Object[];
-  readonly settings: Object;
+  readonly members: object[];
+  readonly playlists: object[];
+  readonly settings: object;
 }
 
 const GroupCard: React.FC<GroupProps> = (props) => {
+  const handleDeleteClick = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    try {
+      await axios.delete(`/api/groups/${props._id}/delete`);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error(axiosError.response?.data);
+    }
+  };
   return (
-    <>
+    <NavLink to={`${props._id}`} style={{ textDecoration: "none" }}>
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <Card
           sx={{
             position: "relative",
-            height: "100%",
+            height: "200px",
+            width: "200px",
+            padding: "1rem",
+            backgroundColor: "#47a661",
+            color: "white",
+            borderRadius: "1rem",
             "&:hover .deleteIcon": {
               display: "block",
             },
@@ -33,16 +49,17 @@ const GroupCard: React.FC<GroupProps> = (props) => {
               height: "100%",
             }}
           >
-            <Typography variant="h5" component="div" sx={{ mb: 2 }}>
+            <Typography variant="h5" component="div">
               {props.name}
             </Typography>
             <IconButton
               className="deleteIcon"
+              onClick={handleDeleteClick}
               sx={{
                 position: "absolute",
                 top: 0,
+                color: "white",
                 right: 0,
-                transform: "translate(50%, -50%)", // Move it to the top right corner
                 display: "none",
               }}
             >
@@ -51,7 +68,7 @@ const GroupCard: React.FC<GroupProps> = (props) => {
           </CardContent>
         </Card>
       </Grid>
-    </>
+    </NavLink>
   );
 };
 

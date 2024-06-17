@@ -11,12 +11,13 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setCurrentUser } from "../store/authSlice";
-import { setAuthToken } from "../util/auth";
+import { setToken } from "../util/auth";
 
 const UserMenu: React.FC = () => {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const iconImg = useSelector((state: any) => state.auth.user._json?.images[0]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const UserMenu: React.FC = () => {
   };
 
   const handleLogout = () => {
-    setAuthToken(null);
+    setToken(null);
     dispatch(setCurrentUser({}));
     navigate("/");
   };

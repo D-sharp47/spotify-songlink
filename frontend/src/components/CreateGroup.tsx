@@ -25,16 +25,12 @@ interface CreateGroupModalContentProps {
 const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
   props
 ) => {
+  const playlistTypes = ["Short Term", "Medium Term", "Long Term", "Custom"];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const userId = useSelector((state: any) => state.auth.user._id);
   const [groupName, setGroupName] = useState("");
   const [groupMembers, setGroupMembers] = useState<string[]>([userId]);
-  const [playlists, setPlaylists] = useState<string[]>([
-    "daily",
-    "weekly",
-    "monthly",
-    "yearly",
-  ]);
+  const [playlists, setPlaylists] = useState<string[]>(playlistTypes);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const searchUsersRef = useRef<any>(null);
 
@@ -62,7 +58,7 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
     e.preventDefault();
 
     try {
-      const response = await axios.post("/api/groups/add", {
+      const response = await axios.post("/api/groups/create", {
         name: groupName,
         members: groupMembers,
         playlists,
@@ -168,51 +164,20 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
             row
             sx={{ width: "100%", justifyContent: "center" }}
           >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  defaultChecked
-                  sx={{ "&.Mui-checked": { color: "#47a661" } }}
-                  onChange={() => handleCheckboxChange("daily")}
-                />
-              }
-              label="Daily"
-              labelPlacement="top"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  defaultChecked
-                  sx={{ "&.Mui-checked": { color: "#47a661" } }}
-                  onChange={() => handleCheckboxChange("weekly")}
-                />
-              }
-              label="Weekly"
-              labelPlacement="top"
-              sx={{ mx: "2rem" }}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  defaultChecked
-                  sx={{ "&.Mui-checked": { color: "#47a661" } }}
-                  onChange={() => handleCheckboxChange("monthly")}
-                />
-              }
-              label="Monthly"
-              labelPlacement="top"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  defaultChecked
-                  sx={{ "&.Mui-checked": { color: "#47a661" } }}
-                  onChange={() => handleCheckboxChange("yearly")}
-                />
-              }
-              label="Yearly"
-              labelPlacement="top"
-            />
+            {playlistTypes.map((playlist) => (
+              <FormControlLabel
+                key={playlist}
+                control={
+                  <Checkbox
+                    defaultChecked
+                    sx={{ "&.Mui-checked": { color: "#47a661" } }}
+                    onChange={() => handleCheckboxChange(playlist)}
+                  />
+                }
+                label={playlist}
+                labelPlacement="top"
+              />
+            ))}
           </FormGroup>
         </FormControl>
       </Stack>

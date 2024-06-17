@@ -1,11 +1,11 @@
 import express from "express";
 import User from "../models/User.js";
-import { authenticateJWT } from "./auth.js";
+// import { ensureAuthenticated } from "./auth.js";
 
 const router = express.Router();
 
-router.get("/", authenticateJWT, async (req, res) => {
-  const userId = req.user.userId;
+router.get("/", async (req, res) => {
+  const userId = req.headers.userid;
 
   try {
     const user = await User.findOne({ _id: userId });
@@ -21,21 +21,21 @@ router.get("/", authenticateJWT, async (req, res) => {
   }
 });
 
-router.post("/add/:id", authenticateJWT, async (req, res) => {
+router.post("/add/:id", async (req, res) => {
   modifyFriend(req, res, "add");
 });
 
-router.put("/accept/:id", authenticateJWT, async (req, res) => {
+router.put("/accept/:id", async (req, res) => {
   modifyFriend(req, res, "accept");
 });
 
-router.delete("/remove/:id", authenticateJWT, async (req, res) => {
+router.delete("/remove/:id", async (req, res) => {
   modifyFriend(req, res, "remove");
 });
 
 const modifyFriend = async (req, res, action) => {
   const friendId = req.params.id;
-  const userId = req.user.userId;
+  const userId = req.headers.userid;
   const session = await User.startSession();
 
   try {
