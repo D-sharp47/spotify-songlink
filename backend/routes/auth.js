@@ -58,9 +58,9 @@ router.post("/refresh", async (req, res) => {
       }
     );
 
-    const { access_token, refresh_token, expires_in } = response.data;
+    const { access_token, expires_in } = response.data;
 
-    res.json({ access_token, refresh_token, expires_in });
+    res.json({ access_token, expires_in });
   } catch (error) {
     console.error("Token refresh error:", error);
     res.status(500).json({ error: "Failed to refresh token" });

@@ -1,7 +1,6 @@
 import express from "express";
 import axios from "axios";
 import User from "../models/User.js";
-// import { ensureAuthenticated } from "./auth.js";
 
 const router = express.Router();
 
@@ -47,6 +46,17 @@ const getTracks = async (req, res, term) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    const tracks = await spotifyTracks(token, term);
+
+    return res.json(tracks);
+  } catch (error) {
+    console.error("Error fetching tracks:", error);
+    res.status(500).json({ message: "Error fetching tracks" });
+  }
+};
+
+export const spotifyTracks = async (token, term) => {
+  try {
     const response = await axios.get(
       `https://api.spotify.com/v1/me/top/tracks?time_range=${term}&limit=50&offset=0`,
       {
@@ -70,10 +80,10 @@ const getTracks = async (req, res, term) => {
       name: item.name,
     }));
 
-    return res.json(tracks);
+    return tracks;
   } catch (error) {
     console.error("Error fetching tracks:", error);
-    res.status(500).json({ message: "Error fetching tracks" });
+    return null;
   }
 };
 

@@ -58,7 +58,7 @@ const GroupDetailPage: React.FC = () => {
             </ul>
           ) : (
             <p>No playlsts</p>
-          )}{" "}
+          )}
         </div>
       </Stack>
     </>

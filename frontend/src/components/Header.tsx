@@ -9,6 +9,7 @@ import UserMenu from "./UserMenu";
 import { Button } from "@mui/material";
 
 const Header: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isLoggedIn = useSelector((state: any) => state.auth.isAuthenticated);
 
   return (

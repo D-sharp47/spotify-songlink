@@ -1,7 +1,7 @@
 import express from "express";
 import User from "../models/User.js";
 import Group from "../models/Group.js";
-// import { ensureAuthenticated } from "./auth.js";
+import { spotifyTracks } from "./users.js";
 
 const router = express.Router();
 
@@ -79,10 +79,16 @@ const createGroup = async (req, res) => {
       name: name,
     }));
 
+    const settings = {
+      songsPerMember: req.body.settings?.songsPerMember || 5,
+      enabled: req.body.settings?.enabled || true,
+    };
+
     const newGroup = new Group({
       name: groupName,
       members,
       playlists,
+      settings,
     });
     await newGroup.save();
 
@@ -90,7 +96,14 @@ const createGroup = async (req, res) => {
 
     for (const member of members) {
       const user = await User.findOne({ _id: member.userId });
-      user.groups.push({ id: groupId, status: member.status });
+
+      const contributions = playlists.map((playlist) => ({
+        term: playlist.name,
+        songsPerUser: settings.songsPerMember,
+        songs: [],
+      }));
+
+      user.groups.push({ id: groupId, status: member.status, contributions });
       await user.save();
     }
 

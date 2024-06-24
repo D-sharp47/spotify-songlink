@@ -11,6 +11,7 @@ import auth from "./routes/auth.js";
 import friends from "./routes/friends.js";
 import groups from "./routes/groups.js";
 import users from "./routes/users.js";
+import routine from "./routes/routine.js";
 
 dotenv.config();
 const port = process.env.PORT || 8000;
@@ -50,6 +51,7 @@ app.use("/api/auth", auth);
 app.use("/api/friends", friends);
 app.use("/api/groups", groups);
 app.use("/api/users", users);
+app.use("/api/routine", routine);
 
 // Error handler
 app.use(notFound);

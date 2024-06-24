@@ -37,8 +37,8 @@ export const getTokenDuration = () => {
   return duration;
 }
 
-export const getAuthToken = () => {
-  const token = localStorage.getItem("accessToken");
+export const getAuthToken = async () => {
+  let token = localStorage.getItem("accessToken");
 
   if (!token) {
     return null;
@@ -47,15 +47,14 @@ export const getAuthToken = () => {
   const tokenDuration = getTokenDuration();
 
   if (tokenDuration < 0) {
-    refreshToken();
-    // console.error('Token expired.');
+    token = await refreshToken();
   }
 
   return token;
 }
 
-export const tokenLoader = () => {
-  return getAuthToken();
+export const tokenLoader = async () => {
+  return await getAuthToken();
 }
 
 const refreshToken = async () => {
@@ -72,10 +71,9 @@ const refreshToken = async () => {
       refreshToken: refreshToken,
     });
 
-    const { accessToken, newRefreshToken, expires_in } = response.data;
+    const { accessToken, expires_in } = response.data;
 
     localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', newRefreshToken);
     setTokenExpiration(expires_in);
 
     axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
@@ -87,8 +85,8 @@ const refreshToken = async () => {
   }
 }
 
-export const checkAuthLoader = () => {
-  const token = getAuthToken();
+export const checkAuthLoader = async () => {
+  const token = await getAuthToken();
 
   if (!token) {
     return redirect("/");

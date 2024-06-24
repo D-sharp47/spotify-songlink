@@ -33,6 +33,21 @@ const GroupSchema = new Schema({
           type: String,
           required: true,
         },
+        contributions: {
+          type: [
+            {
+              userId: {
+                type: String,
+                required: true,
+              },
+              tracks: {
+                type: [Schema.Types.Mixed],
+                required: false,
+              },
+            },
+          ],
+          required: false,
+        },
       },
     ],
     required: false,
@@ -41,16 +56,20 @@ const GroupSchema = new Schema({
     type: {
       songsPerMember: {
         type: Number,
+        required: false,
         default: 5,
-        required: true,
       },
       enabled: {
         type: Boolean,
+        required: false,
         default: true,
-        required: true,
       },
     },
     required: false,
+    default: {
+      songsPerMember: 5,
+      enabled: true,
+    },
   },
 });
 
