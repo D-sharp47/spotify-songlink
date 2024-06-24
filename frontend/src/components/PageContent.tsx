@@ -14,11 +14,12 @@ const PageContent: React.FC<PageContentProps> = ({ title, children }) => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        height: "100vh",
+        minHeight: "100vh",
         background: `url(${BG_Faded})`,
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
         backgroundPosition: "center",
+        backgroundAttachment: "fixed",
       }}
     >
       <h1 style={{ fontSize: "6em", color: "#47a661" }}>{title}</h1>

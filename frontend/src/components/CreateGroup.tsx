@@ -17,6 +17,7 @@ import React, { useState, useRef } from "react";
 import SearchUsers from "./SearchUsers";
 import ClearIcon from "@mui/icons-material/Clear";
 import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface CreateGroupModalContentProps {
   toggleGroupModal: () => void;
@@ -33,6 +34,8 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
   const [playlists, setPlaylists] = useState<string[]>(playlistTypes);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const searchUsersRef = useRef<any>(null);
+
+  const queryClient = useQueryClient();
 
   const handleAddMember = () => {
     const selectedUser = searchUsersRef.current.getSelectedUser();
@@ -67,6 +70,7 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
       if (response.status < 300) {
         console.log(response.data);
         props.toggleGroupModal();
+        queryClient.invalidateQueries({ queryKey: ["groups"] });
       }
     } catch (err) {
       console.log(err);

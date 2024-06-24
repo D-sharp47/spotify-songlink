@@ -5,11 +5,10 @@ import { checkAuthLoader, tokenLoader } from "./util/auth";
 import RootLayout from "./pages/Root";
 import ErrorPage from "./pages/Error";
 import HomePage from "./pages/Home";
-import FriendsPage, { loader as friendsLoader } from "./pages/Friends";
-import GroupPage, { loader as groupLoader } from "./pages/Groups";
-import GroupDetailPage, {
-  loader as groupDetailLoader,
-} from "./pages/GroupDetail";
+import FriendsPage from "./pages/Friends";
+import GroupPage from "./pages/Groups";
+import GroupDetailPage from "./pages/GroupDetail";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const router = createBrowserRouter([
   {
@@ -22,22 +21,23 @@ const router = createBrowserRouter([
       {
         path: "friends",
         element: <FriendsPage />,
-        loader: () => friendsLoader(checkAuthLoader),
+        loader: checkAuthLoader,
       },
       {
         path: "groups",
         element: <GroupPage />,
-        loader: () => groupLoader(checkAuthLoader),
+        loader: checkAuthLoader,
       },
       {
         path: "groups/:groupId",
         element: <GroupDetailPage />,
-        loader: ({ params }) =>
-          groupDetailLoader(checkAuthLoader, params.groupId),
+        loader: checkAuthLoader,
       },
     ],
   },
 ]);
+
+const queryClient = new QueryClient();
 
 const App: React.FC = () => {
   return (
@@ -50,7 +50,9 @@ const App: React.FC = () => {
         overflow: "hidden",
       }}
     >
-      <RouterProvider router={router} />{" "}
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </div>
   );
 };

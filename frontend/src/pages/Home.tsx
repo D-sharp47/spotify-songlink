@@ -2,11 +2,27 @@ import React, { useEffect } from "react";
 import Welcome from "../components/Welcome";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { setToken } from "../util/auth";
+import { setToken } from "../util/auth"; // Adjusted import
 import { setCurrentUser } from "../store/authSlice";
 import axios from "axios";
+import SongTable from "../components/SongTable";
+import { fetchTopSongs } from "../util/api";
+import { useQuery } from "@tanstack/react-query";
+import { Typography } from "@mui/material";
 
 const HomePage: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isLoggedIn = useSelector((state: any) => state.auth.isAuthenticated);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userID = useSelector((state: any) => state.auth.user?._id); // Adjusted selector for user ID
+
+  const { data: topSongs, isLoading: loadingTopSongs } = useQuery({
+    queryKey: ["topSongs", { userId: userID }],
+    queryFn: () => fetchTopSongs(userID),
+    enabled: isLoggedIn && !!userID,
+    staleTime: 30 * 60 * 1000,
+  });
+
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
@@ -38,19 +54,6 @@ const HomePage: React.FC = () => {
     }
   }, [accessToken, user, refreshToken, expires_in, dispatch, navigate]);
 
-  // useEffect(() => {
-  //   if (jwtToken) {
-  //     setToken({ jwtToken, spotifyToken }, (user as { _id: string })._id);
-  //     dispatch(setCurrentUser(user));
-  //     navigate("/");
-  //   }
-  // }, [jwtToken]);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isLoggedIn = useSelector((state: any) => state.auth.isAuthenticated);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userID = useSelector((state: any) => state.auth.user._id);
-
   const loadShort = async () => {
     try {
       const response = await axios.get(`/api/users/${userID}/shortTerm`);
@@ -63,6 +66,18 @@ const HomePage: React.FC = () => {
   const content = isLoggedIn ? (
     <>
       <h1 style={{ color: "white" }}>Logged In!</h1>
+      {loadingTopSongs ? (
+        <Typography variant="h1" sx={{ color: "white" }}>
+          Loading top songs...
+        </Typography>
+      ) : (
+        <>
+          <h2 style={{ color: "white" }}>Top Songs</h2>
+          {topSongs?.longTerm?.length === 50 && (
+            <SongTable topSongs={topSongs} />
+          )}
+        </>
+      )}
       <button onClick={loadShort}>Load Short Term</button>
     </>
   ) : (

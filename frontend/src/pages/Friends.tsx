@@ -1,10 +1,11 @@
-import React, { useRef, Suspense } from "react";
+import React, { useRef } from "react";
 import { useSelector } from "react-redux";
-import { useLoaderData, defer, Await } from "react-router-dom";
-import { Button, Stack } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
+import { Button, Stack } from "@mui/material";
 import Friend from "../components/Friend";
 import SearchUsers from "../components/SearchUsers";
+import { getFriends } from "../util/api";
 
 const FriendsPage: React.FC = () => {
   // Todo: Fix state: any errors/warnings
@@ -12,7 +13,15 @@ const FriendsPage: React.FC = () => {
   const userID = useSelector((state: any) => state.auth.user._id);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const searchUsersRef = useRef<any>(null);
-  const { friends } = useLoaderData() as { friends: object[] };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isLoggedIn = useSelector((state: any) => state.auth.isAuthenticated);
+
+  const { data: friends, isLoading: loadingFriends } = useQuery({
+    queryKey: ["friends"],
+    queryFn: getFriends,
+    enabled: isLoggedIn && !!userID,
+    staleTime: 30 * 60 * 1000,
+  });
 
   const addFriend = async (friendID: string) => {
     try {
@@ -36,32 +45,20 @@ const FriendsPage: React.FC = () => {
 
   return (
     <>
-      <Suspense
-        fallback={
-          <p style={{ textAlign: "center", color: "white" }}>
-            Loading Friends...
-          </p>
-        }
-      >
-        <Await resolve={friends}>
-          {(loadedFriends) => (
-            <>
-              <h1 style={{ color: "white" }}>{userID}: Friends</h1>
-              <ul>
-                {loadedFriends.map(
-                  (f: { friendId: string; status: string }) => (
-                    <Friend
-                      key={f.friendId}
-                      id={f.friendId}
-                      status={f.status}
-                    />
-                  )
-                )}
-              </ul>
-            </>
-          )}
-        </Await>
-      </Suspense>
+      {loadingFriends ? (
+        <p style={{ textAlign: "center", color: "white" }}>
+          Loading Friends...
+        </p>
+      ) : (
+        <>
+          <h1 style={{ color: "white" }}>{userID}: Friends</h1>
+          <ul>
+            {friends.map((f: { friendId: string; status: string }) => (
+              <Friend key={f.friendId} id={f.friendId} status={f.status} />
+            ))}
+          </ul>
+        </>
+      )}
       <h1 style={{ color: "white" }}>{userID}: Add Friends</h1>
       <Stack
         direction="row"
@@ -88,25 +85,6 @@ const FriendsPage: React.FC = () => {
       </Stack>
     </>
   );
-};
-
-const loadFriends = async () => {
-  const response = await axios.get(`/api/friends`);
-  if (response.status < 300) {
-    return response.data;
-  }
-  return [];
-};
-
-export const loader = async (authCheck: () => unknown) => {
-  // Todo: Fix unknown type
-  const auth: boolean = (await authCheck()) === true;
-
-  if (auth) {
-    return defer({
-      friends: loadFriends(),
-    });
-  }
 };
 
 export default FriendsPage;

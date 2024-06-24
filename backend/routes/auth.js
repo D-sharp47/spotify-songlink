@@ -1,6 +1,7 @@
 import express from "express";
 import passport from "passport";
 import dotenv from "dotenv";
+import axios from "axios";
 
 const router = express.Router();
 dotenv.config();
@@ -49,6 +50,11 @@ router.post("/refresh", async (req, res) => {
         refresh_token: refreshToken,
         client_id: process.env.SPOTIFY_CLIENT_ID,
         client_secret: process.env.SPOTIFY_CLIENT_SECRET,
+      },
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       }
     );
 
@@ -56,7 +62,7 @@ router.post("/refresh", async (req, res) => {
 
     res.json({ access_token, refresh_token, expires_in });
   } catch (error) {
-    console.error("Token refresh error:", error.response.data);
+    console.error("Token refresh error:", error);
     res.status(500).json({ error: "Failed to refresh token" });
   }
 });

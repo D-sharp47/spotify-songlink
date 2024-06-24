@@ -9,6 +9,14 @@ router.get("/:userId/shortTerm", async (req, res) => {
   getTracks(req, res, "short_term");
 });
 
+router.get("/:userId/mediumTerm", async (req, res) => {
+  getTracks(req, res, "medium_term");
+});
+
+router.get("/:userId/longTerm", async (req, res) => {
+  getTracks(req, res, "long_term");
+});
+
 router.get("/search", async (req, res) => {
   try {
     const { searchTerm } = req.query;
@@ -35,7 +43,6 @@ const getTracks = async (req, res, term) => {
   try {
     const token = req.headers.authorization;
     const userId = req.headers.userid;
-    console.log("\n");
     if (!token || !userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -49,7 +56,20 @@ const getTracks = async (req, res, term) => {
       }
     );
 
-    const tracks = response.data.items;
+    const tracks = response.data.items.map((item) => ({
+      album: {
+        album_type: item.album.album_type,
+        arists: item.album.artists,
+        external_urls: item.album.external_urls.spotify,
+        id: item.album.id,
+        images: item.album.images,
+        name: item.album.name,
+      },
+      external_urls: item.external_urls.spotify,
+      id: item.id,
+      name: item.name,
+    }));
+
     return res.json(tracks);
   } catch (error) {
     console.error("Error fetching tracks:", error);

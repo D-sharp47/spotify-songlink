@@ -48,6 +48,7 @@ export const getAuthToken = () => {
 
   if (tokenDuration < 0) {
     refreshToken();
+    // console.error('Token expired.');
   }
 
   return token;
