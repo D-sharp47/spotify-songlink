@@ -14,7 +14,7 @@ export const getAllGroups = async () => {
 
 export const getGroup = async (groupId: string) => {
   try {
-    const response = await axios.get(`/api/groups/${groupId}`);
+    const response = await axios.get(`/api/groups/detail/?groupId=${groupId}`);
     if (response.status < 300) {
       return response.data;
     }
@@ -37,7 +37,7 @@ export const createGroup = async (name: string, members: string[], playlists: st
 
 export const deleteGroup = async (groupId: string) => {
   try {
-    await axios.delete(`/api/groups/${groupId}/delete`);
+    await axios.delete(`/api/groups/delete?groupId=${groupId}`);
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(axiosError.response?.data);
@@ -58,7 +58,7 @@ export const getFriends = async () => {
 
 export const addFriend = async (friendId: string) => {
   try {
-    await axios.post(`/api/friends/add/${friendId}`);
+    await axios.post(`/api/friends/add?friendId${friendId}`);
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(axiosError.response?.data);
@@ -67,7 +67,7 @@ export const addFriend = async (friendId: string) => {
 
 export const acceptFriend = async (friendId: string) => {
   try {
-    await axios.put(`/api/friends/accept/${friendId}`);
+    await axios.put(`/api/friends/accept?friendId${friendId}`);
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(axiosError.response?.data);
@@ -76,7 +76,7 @@ export const acceptFriend = async (friendId: string) => {
 
 export const deleteFriend = async (friendId: string) => {
   try {
-    axios.delete(`/api/friends/remove/${friendId}`);
+    axios.delete(`/api/friends/remove?friendId=${friendId}`);
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(axiosError.response?.data);
@@ -94,7 +94,7 @@ export const searchUsers = async (searchTerm: string) => {
 
 export const fetchSongsByTerm = async (userID: string, term: string) => {
   try {
-    const response = await axios.get(`/api/users/${userID}/${term}`);
+    const response = await axios.get(`/api/users?userId=${userID}&term=${term}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching songs:", error);

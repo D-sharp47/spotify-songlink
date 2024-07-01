@@ -20,7 +20,7 @@ const GroupCard: React.FC<GroupProps> = (props) => {
   const handleDeleteClick = async (event: React.MouseEvent) => {
     event.preventDefault();
     try {
-      await axios.delete(`/api/groups/${props._id}/delete`);
+      await axios.delete(`/api/groups/delete?groupId=${props._id}`);
       queryClient.invalidateQueries({ queryKey: ["groups"] });
     } catch (error) {
       const axiosError = error as AxiosError;

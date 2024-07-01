@@ -42,7 +42,7 @@ const Header: React.FC = () => {
           </NavLink>
           {isLoggedIn && (
             <>
-              <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+              <Box sx={{ flexGrow: 1, display: "flex" }}>
                 <NavLink to="/friends" style={{ textDecoration: "none" }}>
                   <Button
                     sx={{

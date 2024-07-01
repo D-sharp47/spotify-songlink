@@ -56,7 +56,9 @@ const HomePage: React.FC = () => {
 
   const loadShort = async () => {
     try {
-      const response = await axios.get(`/api/users/${userID}/shortTerm`);
+      const response = await axios.get(
+        `/api/users?userId=${userID}&term=shortTerm`
+      );
       console.log(response.data);
     } catch (error) {
       console.error(error);

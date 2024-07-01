@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from "@mui/material";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 export interface FriendProps {
   readonly id: string;
@@ -9,23 +9,29 @@ export interface FriendProps {
 const Friend: React.FC<FriendProps> = (props) => {
   const handleRemove = async () => {
     try {
-      const response = await axios.delete(`/api/friends/remove/${props.id}`);
+      const response = await axios.delete(
+        `/api/friends/remove?friendId=${props.id}`
+      );
       if (response.status < 300) {
         // Update the friends list
       }
-    } catch (error: any) {
-      console.error(error.response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error(axiosError.response?.data);
     }
   };
 
   const handleAccept = async () => {
     try {
-      const response = await axios.put(`/api/friends/accept/${props.id}`);
+      const response = await axios.put(
+        `/api/friends/accept?friendId=${props.id}`
+      );
       if (response.status < 300) {
         // Update the friends list
       }
-    } catch (error: any) {
-      console.error(error.response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error(axiosError.response?.data);
     }
   };
 

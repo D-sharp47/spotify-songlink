@@ -21,20 +21,22 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/add/:id", async (req, res) => {
-  modifyFriend(req, res, "add");
+router.post("/add", async (req, res) => {
+  const friendId = req.query.friendId;
+  modifyFriend(req, res, friendId, "add");
 });
 
-router.put("/accept/:id", async (req, res) => {
-  modifyFriend(req, res, "accept");
+router.put("/accept", async (req, res) => {
+  const friendId = req.query.friendId;
+  modifyFriend(req, res, friendId, "accept");
 });
 
-router.delete("/remove/:id", async (req, res) => {
-  modifyFriend(req, res, "remove");
+router.delete("/remove", async (req, res) => {
+  const friendId = req.query.friendId;
+  modifyFriend(req, res, friendId, "remove");
 });
 
-const modifyFriend = async (req, res, action) => {
-  const friendId = req.params.id;
+const modifyFriend = async (req, res, friendId, action) => {
   const userId = req.headers.userid;
   const session = await User.startSession();
 

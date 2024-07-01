@@ -4,16 +4,10 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
-router.get("/:userId/shortTerm", async (req, res) => {
+router.get("/", async (req, res) => {
+  const userId = req.query.userId;
+  const term = req.query.term;
   getTracks(req, res, "short_term");
-});
-
-router.get("/:userId/mediumTerm", async (req, res) => {
-  getTracks(req, res, "medium_term");
-});
-
-router.get("/:userId/longTerm", async (req, res) => {
-  getTracks(req, res, "long_term");
 });
 
 router.get("/search", async (req, res) => {

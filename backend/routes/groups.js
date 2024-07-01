@@ -8,8 +8,8 @@ router.get("/", async (req, res) => {
   getGroups(req, res);
 });
 
-router.get("/:groupId", async (req, res) => {
-  const groupId = req.params.groupId;
+router.get("/detail", async (req, res) => {
+  const groupId = req.query.groupId;
   getGroup(req, res, groupId);
 });
 
@@ -17,13 +17,13 @@ router.post("/create", async (req, res) => {
   const result = await createGroup(req, res);
 });
 
-router.post("/:groupId/update", async (req, res) => {
-  const groupId = req.params.groupId;
+router.post("/update", async (req, res) => {
+  const groupId = req.query.groupId;
   const result = await updateGroup(req, res, groupId);
 });
 
-router.delete("/:groupId/delete", async (req, res) => {
-  const groupId = req.params.groupId;
+router.delete("/delete", async (req, res) => {
+  const groupId = req.query.groupId;
   const result = await deleteGroup(req, res, groupId);
 });
 

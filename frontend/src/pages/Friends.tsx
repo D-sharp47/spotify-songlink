@@ -25,7 +25,9 @@ const FriendsPage: React.FC = () => {
 
   const addFriend = async (friendID: string) => {
     try {
-      const response = await axios.post(`/api/friends/add/${friendID}`);
+      const response = await axios.post(
+        `/api/friends/add?friendId=${friendID}`
+      );
       if (response.status < 300) {
         // Update the friends list
       }
