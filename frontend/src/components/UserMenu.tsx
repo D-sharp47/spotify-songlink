@@ -19,6 +19,10 @@ const UserMenu: React.FC = () => {
   );
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const iconImg = useSelector((state: any) => state.auth.user._json?.images[0]);
+  const displayName = useSelector(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (state: any) => state.auth.user?._json.display_name
+  ); // Adjusted selector for user ID
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -47,8 +51,8 @@ const UserMenu: React.FC = () => {
       >
         <Tooltip title="Open settings">
           <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-            <Avatar alt="Denali Sharp" src={iconImg?.url}>
-              {iconImg ? "" : "D"}
+            <Avatar alt={displayName} src={iconImg?.url}>
+              {iconImg ? "" : displayName.slice(0, 1).toUpperCase() ?? "?"}
             </Avatar>
           </IconButton>
         </Tooltip>

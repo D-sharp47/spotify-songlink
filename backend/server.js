@@ -38,8 +38,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // Set to true if using HTTPS
-      maxAge: 24 * 60 * 60 * 1000, // 1 day (adjust as needed)
+      secure: false,
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );

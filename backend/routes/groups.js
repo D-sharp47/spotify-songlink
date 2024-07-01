@@ -57,7 +57,7 @@ const getGroups = async (req, res) => {
 
     return res.json(groups);
   } catch (err) {
-    console.error("Error fetching groups:", error);
+    console.error("Error fetching groups:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

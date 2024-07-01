@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import { useEffect } from "react";
 import { setCurrentUser } from "../store/authSlice";
 import { setToken } from "../util/auth";
+import WebSocketInvalidator from "../util/WebSocketInvalidator";
 
 const RootLayout: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,6 +67,7 @@ const RootLayout: React.FC = () => {
           backgroundAttachment: "fixed",
         }}
       >
+        {isLoggedIn && <WebSocketInvalidator />}
         <Outlet />
       </div>
     </>

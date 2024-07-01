@@ -81,7 +81,8 @@ const modifyFriend = async (req, res, action) => {
 
       await user.save();
       await friend.save();
-
+      const notifyClients = req.app.get("notifyClients");
+      notifyClients([userId, friend._id], "friendDataChanged");
       res.json({ message: `${user._id} ${action} Friend: ${friend._id}` });
     });
   } catch (err) {
