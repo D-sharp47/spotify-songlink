@@ -35,7 +35,6 @@ const RootLayout: React.FC = () => {
       resetTimer();
     };
 
-    window.addEventListener("mousemove", handleUserActivity);
     window.addEventListener("mousedown", handleUserActivity);
     window.addEventListener("keydown", handleUserActivity);
     window.addEventListener("touchstart", handleUserActivity);
@@ -44,7 +43,6 @@ const RootLayout: React.FC = () => {
 
     return () => {
       clearTimeout(logoutTimer);
-      window.removeEventListener("mousemove", handleUserActivity);
       window.removeEventListener("mousedown", handleUserActivity);
       window.removeEventListener("keydown", handleUserActivity);
       window.removeEventListener("touchstart", handleUserActivity);

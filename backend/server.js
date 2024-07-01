@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import passport from "passport";
 import dotenv from "dotenv";
 import session from "express-session";
+import http from "http";
+import { WebSocketServer } from "ws";
 import logger from "./middleware/logger.js";
 import errorHandler, { notFound } from "./middleware/error.js";
 import passportConfig from "./config/passport.js";
@@ -17,6 +19,8 @@ dotenv.config();
 const port = process.env.PORT || 8000;
 
 const app = express();
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
 
 // Connect to MongoDB
 mongoose
@@ -46,6 +50,48 @@ app.use(logger);
 
 passportConfig(passport);
 
+// WebSocket setup
+const clients = new Map();
+
+wss.on("connection", (ws) => {
+  ws.on("message", (message) => {
+    try {
+      const parsedMessage = JSON.parse(message);
+      const { type, userId } = parsedMessage;
+      if (type === "register" && parsedMessage.userId) {
+        const userId = parsedMessage.userId;
+        clients.set(userId, ws);
+        console.log(`Registered user: ${userId}`);
+      }
+    } catch (error) {
+      console.error("Error parsing message:", error);
+    }
+  });
+
+  ws.on("close", () => {
+    // Clean up disconnected clients
+    for (let [userId, client] of clients.entries()) {
+      if (client === ws) {
+        clients.delete(userId);
+        console.log(`Client disconnected: ${userId}`);
+        break;
+      }
+    }
+  });
+});
+
+const notifyClients = (userIds, message) => {
+  userIds.forEach((userId) => {
+    const client = clients.get(userId);
+    if (client && client._readyState === 1) {
+      client.send(JSON.stringify({ message }));
+      console.log("Notified client", userId, message);
+    }
+  });
+};
+
+app.set("notifyClients", notifyClients);
+
 // Routes
 app.use("/api/auth", auth);
 app.use("/api/friends", friends);
@@ -57,4 +103,4 @@ app.use("/api/routine", routine);
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(port, () => console.log("Server running on port " + port));
+server.listen(port, () => console.log("Server running on port " + port));

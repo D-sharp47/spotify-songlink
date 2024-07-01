@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
-import { useQuery } from "@tanstack/react-query";
+import useWebSocket from "react-use-websocket";
 import { Button, Grid } from "@mui/material";
 import GroupCard, { GroupProps } from "../components/GroupCard";
 import Modal from "../components/Modal";
@@ -8,7 +9,9 @@ import CreateGroup from "../components/CreateGroup";
 import { getAllGroups } from "../util/api";
 
 const GroupsPage: React.FC = () => {
-  // const userID = useSelector((state: any) => state.auth.user._id);
+  const queryClient = useQueryClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userId = useSelector((state: any) => state.auth.user?._id); // Adjusted selector for user ID
   const [showGroupModal, setShowGroupModal] = React.useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,6 +23,22 @@ const GroupsPage: React.FC = () => {
     enabled: isLoggedIn,
     staleTime: 30 * 60 * 1000,
   });
+
+  const handleWebSocketMessage = (message: MessageEvent) => {
+    const data = JSON.parse(message.data);
+    if (data.message === "groupDataChanged") {
+      queryClient.invalidateQueries({ queryKey: ["groups"] });
+    }
+  };
+
+  const { sendJsonMessage } = useWebSocket("ws://localhost:8000", {
+    onMessage: handleWebSocketMessage,
+    queryParams: { userId },
+  });
+
+  useEffect(() => {
+    sendJsonMessage({ type: "register", userId });
+  }, [sendJsonMessage, userId]);
 
   const toggleGroupModal = () => {
     setShowGroupModal(!showGroupModal);

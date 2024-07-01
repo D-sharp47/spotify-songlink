@@ -1,7 +1,6 @@
 import express from "express";
 import User from "../models/User.js";
 import Group from "../models/Group.js";
-import { spotifyTracks } from "./users.js";
 
 const router = express.Router();
 
@@ -15,17 +14,17 @@ router.get("/:groupId", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
-  createGroup(req, res);
+  const result = await createGroup(req, res);
 });
 
 router.post("/:groupId/update", async (req, res) => {
   const groupId = req.params.groupId;
-  updateGroup(req, res, groupId);
+  const result = await updateGroup(req, res, groupId);
 });
 
 router.delete("/:groupId/delete", async (req, res) => {
   const groupId = req.params.groupId;
-  deleteGroup(req, res, groupId);
+  const result = await deleteGroup(req, res, groupId);
 });
 
 const getGroup = async (req, res, groupId) => {
@@ -107,14 +106,21 @@ const createGroup = async (req, res) => {
       await user.save();
     }
 
-    return res.json({ message: "Group created successfully" });
+    const notifyClients = req.app.get("notifyClients");
+    const userIds = members
+      .map((member) => member.userId)
+      .filter((id) => id !== userId);
+    notifyClients(userIds, "groupDataChanged");
+    return res.json({ message: "Group created successfully", members });
   } catch (error) {
     console.error("Error creating group:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-const updateGroup = async (req, res, groupId) => {};
+const updateGroup = async (req, res, groupId) => {
+  // Your update logic here
+};
 
 const deleteGroup = async (req, res, groupId) => {
   try {
@@ -124,6 +130,7 @@ const deleteGroup = async (req, res, groupId) => {
       return res.status(404).json({ error: "Group not found" });
     }
 
+    const userId = req.headers.userid;
     const groupMembers = group.members.map((member) => member.userId);
     await Group.deleteOne({ _id: groupId });
     for (const member of groupMembers) {
@@ -132,7 +139,15 @@ const deleteGroup = async (req, res, groupId) => {
       await user.save();
     }
 
-    return res.json({ message: "Group deleted successfully" });
+    const notifyClients = req.app.get("notifyClients");
+    notifyClients(
+      groupMembers.filter((id) => id !== userId),
+      "groupDataChanged"
+    );
+    return res.json({
+      message: "Group deleted successfully",
+      members: groupMembers,
+    });
   } catch (error) {
     console.error("Error deleting group:", error);
     return res.status(500).json({ error: "Internal server error" });

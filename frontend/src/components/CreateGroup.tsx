@@ -68,7 +68,6 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
       });
 
       if (response.status < 300) {
-        console.log(response.data);
         props.toggleGroupModal();
         queryClient.invalidateQueries({ queryKey: ["groups"] });
       }
