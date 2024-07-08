@@ -72,6 +72,7 @@ export const spotifyTracks = async (token, term) => {
       external_urls: item.external_urls.spotify,
       id: item.id,
       name: item.name,
+      uri: item.uri,
     }));
 
     return tracks;

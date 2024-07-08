@@ -7,6 +7,10 @@ const GroupSchema = new Schema({
     type: String,
     required: true,
   },
+  creatorId: {
+    type: String,
+    required: true,
+  },
   members: {
     type: [
       {
@@ -29,9 +33,22 @@ const GroupSchema = new Schema({
           type: String,
           required: false,
         },
+        snapShotId: {
+          type: String,
+          required: false,
+        },
         name: {
           type: String,
           required: true,
+        },
+        created: {
+          type: Boolean,
+          required: false,
+          default: false,
+        },
+        followers: {
+          type: [String],
+          required: false,
         },
         contributions: {
           type: [
@@ -52,7 +69,7 @@ const GroupSchema = new Schema({
     ],
     required: false,
   },
-  setting: {
+  settings: {
     type: {
       songsPerMember: {
         type: Number,

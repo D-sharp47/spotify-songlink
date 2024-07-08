@@ -85,6 +85,7 @@ const createGroup = async (req, res) => {
 
     const newGroup = new Group({
       name: groupName,
+      creatorId: userId,
       members,
       playlists,
       settings,
@@ -131,6 +132,12 @@ const deleteGroup = async (req, res, groupId) => {
     }
 
     const userId = req.headers.userid;
+
+    if (group.creatorId !== userId) {
+      leaveGroup(req, res, groupId);
+      return;
+    }
+
     const groupMembers = group.members.map((member) => member.userId);
     await Group.deleteOne({ _id: groupId });
     for (const member of groupMembers) {
@@ -150,6 +157,27 @@ const deleteGroup = async (req, res, groupId) => {
     });
   } catch (error) {
     console.error("Error deleting group:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const leaveGroup = async (req, res, groupId) => {
+  try {
+    const userId = req.headers.userid;
+    const user = await User.find({ _id: userId });
+    const group = await Group.find({ _id: groupId });
+    group.members = group.members.filter((member) => member.userId !== userId);
+    user.groups = user.groups.filter((group) => group.id !== groupId);
+    await group.save();
+    await user.save();
+    const notifyClients = req.app.get("notifyClients");
+    notifyClients(
+      groupMembers.filter((id) => id !== userId),
+      "groupDataChanged"
+    );
+    return res.json({ message: "Group left successfully" });
+  } catch (error) {
+    console.error("Error leaving group:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

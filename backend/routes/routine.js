@@ -17,92 +17,161 @@ router.get("/updateSongs", async (req, res) => {
       users.map(async (user) => {
         try {
           const refreshToken = user.refreshToken;
-          const response = await axios.post(
-            "https://accounts.spotify.com/api/token",
-            {
-              grant_type: "refresh_token",
-              refresh_token: refreshToken,
-              client_id: process.env.SPOTIFY_CLIENT_ID,
-              client_secret: process.env.SPOTIFY_CLIENT_SECRET,
-            },
-            {
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-            }
-          );
+          const accessToken = await getAccessTokenFromRefresh(refreshToken);
 
-          const access_token = response.data.access_token;
+          if (!accessToken) {
+            throw new Error(
+              `Unable to refresh access token for user ${user._id}`
+            );
+          }
 
           const topTracksShortTerm = await spotifyTracks(
-            `Bearer ${access_token}`,
+            `Bearer ${accessToken}`,
             "short_term"
           );
           const topTracksMediumTerm = await spotifyTracks(
-            `Bearer ${access_token}`,
+            `Bearer ${accessToken}`,
             "medium_term"
           );
           const topTracksLongTerm = await spotifyTracks(
-            `Bearer ${access_token}`,
+            `Bearer ${accessToken}`,
             "long_term"
           );
 
           await Promise.all(
             user.groups.map(async (group) => {
               try {
-                const groupId = group.id; // Adjust this based on your Group model
-                const groupDoc = await Group.findOne({ _id: groupId });
-
+                const groupDoc = await Group.findById(group.id);
                 if (!groupDoc) {
-                  console.error(`Group not found with id ${groupId}`);
-                  return null; // Handle as per your application's requirement
+                  throw new Error(`Group not found with id ${group.id}`);
                 }
 
-                const songsPerMember = groupDoc.settings?.songsPerMember || 5;
+                const creator = await User.findById(groupDoc.creatorId);
+                const creatorAccessToken = await getAccessTokenFromRefresh(
+                  creator.refreshToken
+                );
 
-                groupDoc.playlists.forEach((playlist) => {
-                  if (
-                    playlist.contributions.some(
-                      (contribution) => contribution.userId === user._id
-                    )
-                  ) {
-                    // If contributions for the user already exist, update them
-                    playlist.contributions.forEach((contribution) => {
-                      if (contribution.userId === user._id) {
-                        let tracks = [];
-                        if (playlist.name === "Short Term") {
-                          tracks = topTracksShortTerm.slice(0, songsPerMember);
-                        } else if (playlist.name === "Medium Term") {
-                          tracks = topTracksMediumTerm.slice(0, songsPerMember);
-                        } else if (playlist.name === "Long Term") {
-                          tracks = topTracksLongTerm.slice(0, songsPerMember);
-                        }
-                        contribution.tracks = tracks;
+                if (!creatorAccessToken) {
+                  throw new Error(
+                    `Unable to refresh access token for creator ${creator._id}`
+                  );
+                }
+
+                const songsPerMember = groupDoc.settings.songsPerMember;
+
+                for (const playlist of groupDoc.playlists) {
+                  const userContribution = playlist.contributions.find(
+                    (contribution) => contribution.userId === user._id
+                  );
+
+                  if (!playlist.created) {
+                    const { playlist_id, snapshot_id } = await createPlaylist(
+                      creatorAccessToken,
+                      groupDoc.creatorId,
+                      `${groupDoc.name} - ${playlist.name}`
+                    );
+
+                    playlist.playlistId = playlist_id;
+                    playlist.snapshotId = snapshot_id;
+                    playlist.created = true;
+                  }
+
+                  const isFollowing = playlist.followers.includes(user._id);
+                  if (user._id !== creator._id && !isFollowing) {
+                    await axios.put(
+                      `https://api.spotify.com/v1/playlists/${playlist.playlistId}/followers`,
+                      {
+                        public: true,
+                      },
+                      {
+                        headers: {
+                          Authorization: `Bearer ${accessToken}`,
+                          "Content-Type": "application/json",
+                        },
                       }
-                    });
-                  } else {
-                    // If contributions for the user do not exist, create a new one
-                    let tracks = [];
-                    if (playlist.name === "Short Term") {
-                      tracks = topTracksShortTerm.slice(0, songsPerMember);
-                    } else if (playlist.name === "Medium Term") {
-                      tracks = topTracksMediumTerm.slice(0, songsPerMember);
-                    } else if (playlist.name === "Long Term") {
-                      tracks = topTracksLongTerm.slice(0, songsPerMember);
+                    );
+                    playlist.followers.push(user._id);
+                    console.log(
+                      user._id,
+                      " followed ",
+                      groupDoc.name,
+                      " playlist ",
+                      playlist.name
+                    );
+                  }
+
+                  if (
+                    topTracksShortTerm.length +
+                      topTracksMediumTerm.length +
+                      topTracksLongTerm.length ===
+                    0
+                  ) {
+                    return;
+                  }
+
+                  if (playlist.created) {
+                    const userTrackUris =
+                      userContribution?.tracks.map((track) => track.uri) ?? [];
+                    if (userTrackUris.length > 0) {
+                      await axios.post(
+                        `https://api.spotify.com/v1/playlists/${playlist.playlistId}/tracks`,
+                        {
+                          uris: userTrackUris,
+                          snapshot_id: playlist.snapshotId,
+                        },
+                        {
+                          headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                            "Content-Type": "application/json",
+                          },
+                        }
+                      );
                     }
+                  }
+
+                  if (userContribution) {
+                    const tracks = getTracksByPlaylistName(
+                      playlist.name,
+                      topTracksShortTerm,
+                      topTracksMediumTerm,
+                      topTracksLongTerm,
+                      songsPerMember
+                    );
+
+                    userContribution.tracks = tracks;
+                    await addTracksToPlaylist(
+                      accessToken,
+                      playlist.playlistId,
+                      tracks
+                    );
+                  } else {
+                    const tracks = getTracksByPlaylistName(
+                      playlist.name,
+                      topTracksShortTerm,
+                      topTracksMediumTerm,
+                      topTracksLongTerm,
+                      songsPerMember
+                    );
+
                     playlist.contributions.push({
                       userId: user._id,
                       tracks: tracks,
                     });
-                  }
-                });
 
-                // Save the updated group document
+                    await addTracksToPlaylist(
+                      accessToken,
+                      playlist.playlistId,
+                      tracks
+                    );
+                  }
+                }
+
                 await groupDoc.save();
-                return groupDoc;
               } catch (error) {
-                console.error(`Error updating group for user `, error);
-                return null; // Handle as per your application's requirement
+                console.error(
+                  `Error updating group ${group.id} for user ${user._id}:`,
+                  error
+                );
               }
             })
           );
@@ -114,8 +183,8 @@ router.get("/updateSongs", async (req, res) => {
             topTracksLongTerm,
           };
         } catch (error) {
-          console.error(`Error refreshing token for user ${user._id}:`, error);
-          return null; // Handle error as per your application's requirement
+          console.error(`Error processing user ${user._id}:`, error);
+          return null;
         }
       })
     );
@@ -126,5 +195,101 @@ router.get("/updateSongs", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch users" });
   }
 });
+
+export const getAccessTokenFromRefresh = async (refreshToken) => {
+  try {
+    const response = await axios.post(
+      "https://accounts.spotify.com/api/token",
+      new URLSearchParams({
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+        client_id: process.env.SPOTIFY_CLIENT_ID,
+        client_secret: process.env.SPOTIFY_CLIENT_SECRET,
+      }).toString(),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    return response.data.access_token;
+  } catch (error) {
+    console.error("Token refresh error:", error);
+    return null;
+  }
+};
+
+export const createPlaylist = async (accessToken, userId, playlistName) => {
+  try {
+    const response = await axios.post(
+      `https://api.spotify.com/v1/users/${userId}/playlists`,
+      {
+        name: playlistName,
+        public: false,
+        collaborative: true,
+        description: "Playlist created by SongLink",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return {
+      playlist_id: response.data.id,
+      snapshot_id: response.data.snapshot_id,
+    };
+  } catch (error) {
+    console.error("Error creating playlist:", error);
+    return null;
+  }
+};
+
+export const addTracksToPlaylist = async (accessToken, playlistId, tracks) => {
+  try {
+    const trackUris = tracks.map((track) => track.uri);
+    if (trackUris.length === 0) {
+      return;
+    }
+
+    await axios.post(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+      {
+        uris: trackUris,
+        position: 0,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Error adding tracks to playlist:", error);
+  }
+};
+
+const getTracksByPlaylistName = (
+  playlistName,
+  shortTerm,
+  mediumTerm,
+  longTerm,
+  limit
+) => {
+  switch (playlistName) {
+    case "Short Term":
+      return shortTerm.slice(0, limit);
+    case "Medium Term":
+      return mediumTerm.slice(0, limit);
+    case "Long Term":
+      return longTerm.slice(0, limit);
+    default:
+      return [];
+  }
+};
 
 export default router;
