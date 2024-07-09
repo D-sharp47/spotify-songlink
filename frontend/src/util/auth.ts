@@ -5,19 +5,20 @@ export const setToken = (tokens?: {accessToken: string, refreshToken: string, ex
   if (tokens && userId) {
     localStorage.setItem("accessToken", tokens.accessToken);
     localStorage.setItem("refreshToken", tokens.refreshToken);
+    localStorage.setItem("userId", userId);
     setTokenExpiration(tokens.expires_in);
 
     axios.defaults.headers.common['Authorization'] = `Bearer ${tokens.accessToken}`;
     axios.defaults.headers.common['userId'] = userId;
   } else {
     // Delete headers
+    console.log("Deleting headers")
     delete axios.defaults.headers.common['Authorization'];
     delete axios.defaults.headers.common['userId'];
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("expiration");
-    localStorage.removeItem("state");
-  }
+    localStorage.removeItem("userId");}
 };
 
 const setTokenExpiration = (expires_in: number) => {

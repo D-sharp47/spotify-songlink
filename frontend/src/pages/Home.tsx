@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { setToken } from "../util/auth"; // Adjusted import
 import { setCurrentUser } from "../store/authSlice";
-import axios from "axios";
+import axios from "../util/axiosApi";
 import SongTable from "../components/SongTable";
 import { fetchTopSongs } from "../util/api";
 import { useQuery } from "@tanstack/react-query";

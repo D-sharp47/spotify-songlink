@@ -3,7 +3,8 @@ import React from "react";
 import { Card, CardContent, Typography, IconButton, Grid } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { NavLink } from "react-router-dom";
-import axios, { AxiosError } from "axios";
+import axios from "../util/axiosApi";
+import { AxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 
 export interface GroupProps {

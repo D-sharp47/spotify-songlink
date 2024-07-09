@@ -6,7 +6,7 @@ import React, {
 } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import axios from "axios";
+import axios from "../util/axiosApi";
 import { SxProps } from "@mui/material";
 
 const SearchUsers = forwardRef(({ sxProps }: { sxProps?: SxProps }, ref) => {

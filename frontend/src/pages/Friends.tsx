@@ -1,7 +1,8 @@
 import React, { useRef } from "react";
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import axios from "../util/axiosApi";
+import { AxiosError } from "axios";
 import { Button, Stack } from "@mui/material";
 import Friend from "../components/Friend";
 import SearchUsers from "../components/SearchUsers";

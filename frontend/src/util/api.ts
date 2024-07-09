@@ -1,4 +1,5 @@
-import axios, { AxiosError } from "axios";
+import axios from "../util/axiosApi";
+import { AxiosError } from "axios";
 
 export const getAllGroups = async () => {
   try {

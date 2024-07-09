@@ -8,14 +8,24 @@ import { setCurrentUser } from "../store/authSlice";
 import { setToken } from "../util/auth";
 import WebSocketInvalidator from "../util/WebSocketInvalidator";
 import { StoreType } from "../util/types";
+import axios from "../util/axiosApi";
 
 const RootLayout: React.FC = () => {
-  const isLoggedIn = useSelector((state: StoreType) => state.auth.isAuthenticated);
+  const isLoggedIn = useSelector(
+    (state: StoreType) => state.auth.isAuthenticated
+  );
+  const userId = useSelector((state: StoreType) => state.auth.user?._id);
   const bgImage = isLoggedIn ? BG_Faded : SongLinkBG;
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (isLoggedIn) {
+      console.log("setting headers");
+      const accessToken = localStorage.getItem("accessToken");
+      axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+      axios.defaults.headers.common["userId"] = userId;
+    }
     let logoutTimer: number;
     const logoutTimeInMs = 1000 * 60 * 24; // 24hr
     const resetTimer = () => {

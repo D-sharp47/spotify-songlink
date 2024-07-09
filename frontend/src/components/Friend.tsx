@@ -1,5 +1,6 @@
 import { Box, Button, Typography } from "@mui/material";
-import axios, { AxiosError } from "axios";
+import axios from "../util/axiosApi";
+import { AxiosError } from "axios";
 
 export interface FriendProps {
   readonly id: string;

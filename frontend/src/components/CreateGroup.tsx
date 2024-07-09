@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import React, { useState, useRef } from "react";
 import SearchUsers from "./SearchUsers";
 import ClearIcon from "@mui/icons-material/Clear";
-import axios from "axios";
+import axios from "../util/axiosApi";
 import { useQueryClient } from "@tanstack/react-query";
 import { StoreType } from "../util/types";
 
@@ -94,7 +94,7 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
           Group Members
         </Typography>
         <Stack direction="row" alignItems="center">
-          <SearchUsers sxProps={{ width: "64vh" }} ref={searchUsersRef} />
+          <SearchUsers sxProps={{ width: "80vh" }} ref={searchUsersRef} />
           <Button
             variant="contained"
             size="large"
@@ -121,7 +121,10 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
                 mt: "1rem",
                 border: "1px solid #47a661",
                 backgroundColor: "#f0f8f2",
-                padding: "0.5rem",
+                paddingX: "0.5rem",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
                 borderRadius: "1rem",
                 whiteSpace: "nowrap",
               }}
