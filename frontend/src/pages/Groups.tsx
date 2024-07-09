@@ -6,12 +6,14 @@ import GroupCard, { GroupProps } from "../components/GroupCard";
 import Modal from "../components/Modal";
 import CreateGroup from "../components/CreateGroup";
 import { getAllGroups } from "../util/api";
+import { StoreType } from "../util/types";
 
 const GroupsPage: React.FC = () => {
   const [showGroupModal, setShowGroupModal] = React.useState(false);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isLoggedIn = useSelector((state: any) => state.auth.isAuthenticated);
+  const isLoggedIn = useSelector(
+    (state: StoreType) => state.auth.isAuthenticated
+  );
 
   const { data: groups, isLoading: loadingGroups } = useQuery({
     queryKey: ["groups", "allGroups"],

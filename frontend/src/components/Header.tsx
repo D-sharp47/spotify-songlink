@@ -7,10 +7,12 @@ import CustomIcon from "../assets/CustomIcon";
 import { useSelector } from "react-redux";
 import UserMenu from "./UserMenu";
 import { Button } from "@mui/material";
+import { StoreType } from "../util/types";
 
 const Header: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isLoggedIn = useSelector((state: any) => state.auth.isAuthenticated);
+  const isLoggedIn = useSelector(
+    (state: StoreType) => state.auth.isAuthenticated
+  );
 
   return (
     <Box sx={{ flexGrow: 1 }}>

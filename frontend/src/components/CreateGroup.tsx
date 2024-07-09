@@ -18,6 +18,7 @@ import SearchUsers from "./SearchUsers";
 import ClearIcon from "@mui/icons-material/Clear";
 import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
+import { StoreType } from "../util/types";
 
 interface CreateGroupModalContentProps {
   toggleGroupModal: () => void;
@@ -26,9 +27,8 @@ interface CreateGroupModalContentProps {
 const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
   props
 ) => {
-  const playlistTypes = ["Short Term", "Medium Term", "Long Term", "Custom"];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userId = useSelector((state: any) => state.auth.user._id);
+  const playlistTypes = ["Short Term", "Medium Term", "Long Term"];
+  const userId = useSelector((state: StoreType) => state.auth.user._id);
   const [groupName, setGroupName] = useState("");
   const [groupMembers, setGroupMembers] = useState<string[]>([userId]);
   const [playlists, setPlaylists] = useState<string[]>(playlistTypes);

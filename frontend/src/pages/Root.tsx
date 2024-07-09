@@ -7,10 +7,10 @@ import { useEffect } from "react";
 import { setCurrentUser } from "../store/authSlice";
 import { setToken } from "../util/auth";
 import WebSocketInvalidator from "../util/WebSocketInvalidator";
+import { StoreType } from "../util/types";
 
 const RootLayout: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isLoggedIn = useSelector((state: any) => state.auth.isAuthenticated);
+  const isLoggedIn = useSelector((state: StoreType) => state.auth.isAuthenticated);
   const bgImage = isLoggedIn ? BG_Faded : SongLinkBG;
   const dispatch = useDispatch();
   const navigate = useNavigate();

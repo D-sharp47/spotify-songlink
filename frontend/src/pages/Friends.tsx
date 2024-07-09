@@ -6,15 +6,15 @@ import { Button, Stack } from "@mui/material";
 import Friend from "../components/Friend";
 import SearchUsers from "../components/SearchUsers";
 import { getFriends } from "../util/api";
+import { StoreType } from "../util/types";
 
 const FriendsPage: React.FC = () => {
-  // Todo: Fix state: any errors/warnings
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userID = useSelector((state: any) => state.auth.user._id);
+  const userID = useSelector((state: StoreType) => state.auth.user._id);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const searchUsersRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isLoggedIn = useSelector((state: any) => state.auth.isAuthenticated);
+  const isLoggedIn = useSelector(
+    (state: StoreType) => state.auth.isAuthenticated
+  );
 
   const { data: friends, isLoading: loadingFriends } = useQuery({
     queryKey: ["friends"],
@@ -25,12 +25,7 @@ const FriendsPage: React.FC = () => {
 
   const addFriend = async (friendID: string) => {
     try {
-      const response = await axios.post(
-        `/api/friends/add?friendId=${friendID}`
-      );
-      if (response.status < 300) {
-        // Update the friends list
-      }
+      await axios.post(`/api/friends/add?friendId=${friendID}`);
     } catch (error) {
       const axiosError = error as AxiosError;
       console.error(axiosError.response?.data);

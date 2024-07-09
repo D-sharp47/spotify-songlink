@@ -9,12 +9,13 @@ import SongTable from "../components/SongTable";
 import { fetchTopSongs } from "../util/api";
 import { useQuery } from "@tanstack/react-query";
 import { Typography } from "@mui/material";
+import { StoreType } from "../util/types";
 
 const HomePage: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isLoggedIn = useSelector((state: any) => state.auth.isAuthenticated);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userID = useSelector((state: any) => state.auth.user?._id); // Adjusted selector for user ID
+  const isLoggedIn = useSelector(
+    (state: StoreType) => state.auth.isAuthenticated
+  );
+  const userID = useSelector((state: StoreType) => state.auth.user?._id); // Adjusted selector for user ID
 
   const { data: topSongs, isLoading: loadingTopSongs } = useQuery({
     queryKey: ["topSongs", { userId: userID }],

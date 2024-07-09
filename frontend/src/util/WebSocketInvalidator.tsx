@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import useWebSocket from "react-use-websocket";
 import { useSelector } from "react-redux";
+import { StoreType } from "./types";
 
 const WebSocketInvalidator = () => {
   const queryClient = useQueryClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userId = useSelector((state: any) => state.auth.user?._id);
+  const userId = useSelector((state: StoreType) => state.auth.user?._id);
 
   const handleWebSocketMessage = (message: MessageEvent) => {
     if (!userId) return;
