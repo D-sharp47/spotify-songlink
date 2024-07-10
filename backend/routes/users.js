@@ -111,6 +111,15 @@ export const createTempPlaylist = async (token, userId, name, tracks = []) => {
       return null;
     }
 
+    axios.delete(
+      `https://api.spotify.com/v1/playlists/${playlistId}/followers`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
     return playlistId;
   } catch (error) {
     console.error("Error creating playlist:", error);

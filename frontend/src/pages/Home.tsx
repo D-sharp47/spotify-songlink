@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { setToken } from "../util/auth";
 import { setCurrentUser } from "../store/authSlice";
-import axios from "../util/axiosApi";
 import { fetchTopSongs } from "../util/api";
 import { useQuery } from "@tanstack/react-query";
 import { Box, Tab, Tabs, Typography } from "@mui/material";
@@ -55,17 +54,6 @@ const HomePage: React.FC = () => {
     }
   }, [accessToken, user, refreshToken, expires_in, dispatch, navigate]);
 
-  const loadShort = async () => {
-    try {
-      const response = await axios.get(
-        `/api/users?userId=${userID}&term=shortTerm`
-      );
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
@@ -106,13 +94,14 @@ const HomePage: React.FC = () => {
                 </Box>
               </Box>
               <div
-                style={{ position: "relative", width: "75%", height: "552px" }}
+                style={{ position: "relative", width: "75%", height: "772px" }}
               >
                 {topSongs.map((pid, index: number) => (
                   <iframe
                     key={pid}
                     style={{
                       borderRadius: "12px",
+                      marginBottom: "5rem",
                       borderWidth: "0",
                       position: "absolute",
                       top: 0,
@@ -131,7 +120,6 @@ const HomePage: React.FC = () => {
           )}
         </>
       )}
-      <button onClick={loadShort}>Load Short Term</button>
     </>
   ) : (
     <Welcome />

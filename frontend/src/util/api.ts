@@ -113,13 +113,13 @@ export const fetchTopSongs = async (userID: string) => {
     let longTermPlaylist: string | null = null;
 
     if (shortTerm.length > 0) {
-       shortTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Temp Short Term", tracks: shortTerm})).data.playlistId;
+       shortTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Top Songs Short Term", tracks: shortTerm})).data.playlistId;
     }
     if (mediumTerm.length > 0) {
-       mediumTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Temp Medium Term", tracks: mediumTerm})).data.playlistId;
+       mediumTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Top Songs Medium Term", tracks: mediumTerm})).data.playlistId;
     }
     if (longTerm.length > 0) {
-       longTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Temp Long Term", tracks: longTerm})).data.playlistId;
+       longTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Top Songs Long Term", tracks: longTerm})).data.playlistId;
     }
 
     console.log("\nShort pid: ", shortTermPlaylist);
