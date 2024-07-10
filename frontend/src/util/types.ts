@@ -23,7 +23,11 @@ export type StoreType = {
       },
       _id: string;
       refreshToken: string;
-      friends: string[];
+      friends: {
+        friendId: string;
+        status: string;
+        _id: string;
+      }[];
       groups: {
         id: string;
         status: string;

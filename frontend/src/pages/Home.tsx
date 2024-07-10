@@ -2,23 +2,23 @@ import React, { useEffect } from "react";
 import Welcome from "../components/Welcome";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { setToken } from "../util/auth"; // Adjusted import
+import { setToken } from "../util/auth";
 import { setCurrentUser } from "../store/authSlice";
 import axios from "../util/axiosApi";
-import SongTable from "../components/SongTable";
 import { fetchTopSongs } from "../util/api";
 import { useQuery } from "@tanstack/react-query";
-import { Typography } from "@mui/material";
+import { Box, Tab, Tabs, Typography } from "@mui/material";
 import { StoreType } from "../util/types";
 
 const HomePage: React.FC = () => {
   const isLoggedIn = useSelector(
     (state: StoreType) => state.auth.isAuthenticated
   );
-  const userID = useSelector((state: StoreType) => state.auth.user?._id); // Adjusted selector for user ID
+  const userID = useSelector((state: StoreType) => state.auth.user?._id);
+  const [value, setValue] = React.useState(0);
 
   const { data: topSongs, isLoading: loadingTopSongs } = useQuery({
-    queryKey: ["topSongs", { userId: userID }],
+    queryKey: ["topSongs", userID],
     queryFn: () => fetchTopSongs(userID),
     enabled: isLoggedIn && !!userID,
     staleTime: 30 * 60 * 1000,
@@ -66,9 +66,12 @@ const HomePage: React.FC = () => {
     }
   };
 
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+
   const content = isLoggedIn ? (
     <>
-      <h1 style={{ color: "white" }}>Logged In!</h1>
       {loadingTopSongs ? (
         <Typography variant="h1" sx={{ color: "white" }}>
           Loading top songs...
@@ -76,8 +79,55 @@ const HomePage: React.FC = () => {
       ) : (
         <>
           <h2 style={{ color: "white" }}>Top Songs</h2>
-          {topSongs?.longTerm?.length === 50 && (
-            <SongTable topSongs={topSongs} />
+          {topSongs && (
+            <>
+              <Box sx={{ width: "73%" }}>
+                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                  <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    sx={{
+                      "& .MuiTab-root": {
+                        color: "#ffffff",
+                      },
+                      "& .MuiTab-root.Mui-selected": {
+                        color: "#47a661",
+                      },
+                      "& .MuiTabs-indicator": {
+                        backgroundColor: "#47a661",
+                      },
+                    }}
+                    aria-label="playlist-tabs"
+                  >
+                    {topSongs[0] && <Tab label="Short Term" />}
+                    {topSongs[1] && <Tab label="Medium Term" />}
+                    {topSongs[2] && <Tab label="Long Term" />}
+                  </Tabs>
+                </Box>
+              </Box>
+              <div
+                style={{ position: "relative", width: "75%", height: "552px" }}
+              >
+                {topSongs.map((pid, index: number) => (
+                  <iframe
+                    key={pid}
+                    style={{
+                      borderRadius: "12px",
+                      borderWidth: "0",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      display: value === index ? "block" : "none",
+                    }}
+                    src={`https://open.spotify.com/embed/playlist/${pid}?utm_source=generator&theme=0`}
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="eager"
+                  ></iframe>
+                ))}
+              </div>
+            </>
           )}
         </>
       )}

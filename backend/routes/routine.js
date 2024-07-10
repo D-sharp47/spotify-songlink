@@ -1,5 +1,5 @@
 import express from "express";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import User from "../models/User.js";
 import Group from "../models/Group.js";
 import { spotifyTracks } from "./users.js";
@@ -110,22 +110,21 @@ router.get("/updateSongs", async (req, res) => {
                   }
 
                   if (playlist.created) {
-                    const userTrackUris =
-                      userContribution?.tracks.map((track) => track.uri) ?? [];
-                    if (userTrackUris.length > 0) {
-                      await axios.post(
-                        `https://api.spotify.com/v1/playlists/${playlist.playlistId}/tracks`,
-                        {
-                          uris: userTrackUris,
+                    const prevTracks = userContribution?.tracks ?? [];
+                    if (prevTracks.length > 0) {
+                      const response = await axios({
+                        method: "DELETE",
+                        url: `https://api.spotify.com/v1/playlists/${playlist.playlistId}/tracks`,
+                        headers: {
+                          Authorization: `Bearer ${accessToken}`,
+                          "Content-Type": "application/json",
+                        },
+                        data: {
+                          tracks: prevTracks.map((uri) => ({ uri })),
                           snapshot_id: playlist.snapshotId,
                         },
-                        {
-                          headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                            "Content-Type": "application/json",
-                          },
-                        }
-                      );
+                      });
+                      playlist.snapshotId = response.data.snapshot_id;
                     }
                   }
 
@@ -250,26 +249,25 @@ export const createPlaylist = async (accessToken, userId, playlistName) => {
 
 export const addTracksToPlaylist = async (accessToken, playlistId, tracks) => {
   try {
-    const trackUris = tracks.map((track) => track.uri);
-    if (trackUris.length === 0) {
+    if (tracks.length === 0) {
+      console.log("No tracks to add to playlist");
       return;
     }
 
     await axios.post(
       `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
       {
-        uris: trackUris,
+        uris: tracks,
         position: 0,
       },
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
         },
       }
     );
   } catch (error) {
-    console.error("Error adding tracks to playlist:", error);
+    // console.error("Error adding tracks to playlist:", error);
   }
 };
 

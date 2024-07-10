@@ -27,7 +27,7 @@ const RootLayout: React.FC = () => {
       axios.defaults.headers.common["userId"] = userId;
     }
     let logoutTimer: number;
-    const logoutTimeInMs = 1000 * 60 * 24; // 24hr
+    const logoutTimeInMs = 1000 * 60 * 60 * 24; // 24hr
     const resetTimer = () => {
       clearTimeout(logoutTimer);
       logoutTimer = setTimeout(logout, logoutTimeInMs);

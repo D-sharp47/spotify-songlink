@@ -104,12 +104,31 @@ export const fetchSongsByTerm = async (userID: string, term: string) => {
 
 export const fetchTopSongs = async (userID: string) => {
   try {
-    const shortTerm = await fetchSongsByTerm(userID, "shortTerm");
-    const mediumTerm = await fetchSongsByTerm(userID, "mediumTerm");
-    const longTerm = await fetchSongsByTerm(userID, "longTerm");
-    return { shortTerm, mediumTerm, longTerm };
+    const shortTerm = await fetchSongsByTerm(userID, "short_term");
+    const mediumTerm = await fetchSongsByTerm(userID, "medium_term");
+    const longTerm = await fetchSongsByTerm(userID, "long_term");
+
+    let shortTermPlaylist: string | null = null;
+    let mediumTermPlaylist: string | null = null;
+    let longTermPlaylist: string | null = null;
+
+    if (shortTerm.length > 0) {
+       shortTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Temp Short Term", tracks: shortTerm})).data.playlistId;
+    }
+    if (mediumTerm.length > 0) {
+       mediumTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Temp Medium Term", tracks: mediumTerm})).data.playlistId;
+    }
+    if (longTerm.length > 0) {
+       longTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Temp Long Term", tracks: longTerm})).data.playlistId;
+    }
+
+    console.log("\nShort pid: ", shortTermPlaylist);
+    console.log("Medium pid: ", mediumTermPlaylist);
+    console.log("Long pid: ", longTermPlaylist);
+
+    return [ shortTermPlaylist, mediumTermPlaylist, longTermPlaylist ];
   } catch (error) {
     console.error("Error fetching top songs:", error);
-    return { shortTerm: [], mediumTerm: [], longTerm: [] };
+    return null;
   }
 };

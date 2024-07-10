@@ -58,7 +58,7 @@ const GroupSchema = new Schema({
                 required: true,
               },
               tracks: {
-                type: [Schema.Types.Mixed],
+                type: [String],
                 required: false,
               },
             },

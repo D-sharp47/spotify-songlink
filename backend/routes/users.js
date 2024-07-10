@@ -1,13 +1,14 @@
 import express from "express";
 import axios from "axios";
 import User from "../models/User.js";
+import { addTracksToPlaylist, createPlaylist } from "./routine.js";
 
 const router = express.Router();
 
 router.get("/", async (req, res) => {
   const userId = req.query.userId;
   const term = req.query.term;
-  getTracks(req, res, "short_term");
+  getTracks(req, res, term);
 });
 
 router.get("/search", async (req, res) => {
@@ -29,6 +30,32 @@ router.get("/search", async (req, res) => {
   } catch (error) {
     console.error("Error fetching users:", error);
     res.status(500).json({ message: "Error fetching users" });
+  }
+});
+
+router.post("/createPlaylist", async (req, res) => {
+  const { name, tracks } = req.body;
+  let token = req.headers.authorization;
+  const userId = req.headers.userid;
+
+  if (!name) {
+    return res.status(400).json({ message: "Playlist name is required" });
+  }
+
+  if (!token || !userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  if (token.slice(0, 6) === "Bearer") {
+    token = token.slice(7);
+  }
+
+  const playlistId = await createTempPlaylist(token, userId, name, tracks);
+
+  if (playlistId) {
+    return res.json({ playlistId });
+  } else {
+    return res.status(500).json({ message: "Error creating playlist" });
   }
 });
 
@@ -60,24 +87,33 @@ export const spotifyTracks = async (token, term) => {
       }
     );
 
-    const tracks = response.data.items.map((item) => ({
-      album: {
-        album_type: item.album.album_type,
-        arists: item.album.artists,
-        external_urls: item.album.external_urls.spotify,
-        id: item.album.id,
-        images: item.album.images,
-        name: item.album.name,
-      },
-      external_urls: item.external_urls.spotify,
-      id: item.id,
-      name: item.name,
-      uri: item.uri,
-    }));
+    const tracks = response.data.items.map((item) => item.uri);
 
     return tracks;
   } catch (error) {
     console.error("Error fetching tracks:", error);
+    return null;
+  }
+};
+
+export const createTempPlaylist = async (token, userId, name, tracks = []) => {
+  try {
+    let playlistId = null;
+    if (tracks.length > 0) {
+      const response = await createPlaylist(token, userId, name);
+      playlistId = response.playlist_id;
+      if (!playlistId) {
+        throw new Error("Null playlistId");
+      }
+      await addTracksToPlaylist(token, playlistId, tracks);
+    } else {
+      console.error("No tracks to add to playlist");
+      return null;
+    }
+
+    return playlistId;
+  } catch (error) {
+    console.error("Error creating playlist:", error);
     return null;
   }
 };

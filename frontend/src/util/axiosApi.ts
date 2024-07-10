@@ -1,11 +1,11 @@
 import Axios, { AxiosRequestHeaders } from 'axios';
 import { getAuthToken } from './auth';
-const axios = Axios.create();
 
-const accessToken = getAuthToken();
+const axios = Axios.create();
 
 axios.interceptors.request.use(
   async (config) => {
+    const accessToken = await getAuthToken(); 
     config.headers = {
       Authorization: `Bearer ${accessToken}`,
       userId: localStorage.getItem("userId"),
@@ -13,7 +13,7 @@ axios.interceptors.request.use(
     return config;
   },
   (error) => {
-    Promise.reject(error);
+    return Promise.reject(error);
   }
 );
 
