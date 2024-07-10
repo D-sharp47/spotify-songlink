@@ -2,7 +2,11 @@ import express from "express";
 import axios, { AxiosError } from "axios";
 import User from "../models/User.js";
 import Group from "../models/Group.js";
-import { spotifyTracks } from "./users.js";
+import {
+  removeTracksFromPlaylist,
+  setUserDataPlaylist,
+  spotifyTracks,
+} from "./users.js";
 
 const router = express.Router();
 
@@ -29,13 +33,36 @@ router.get("/updateSongs", async (req, res) => {
             `Bearer ${accessToken}`,
             "short_term"
           );
+          setUserDataPlaylist(
+            accessToken,
+            user._id,
+            "Top Songs Short Term",
+            topTracksShortTerm,
+            true
+          );
+
           const topTracksMediumTerm = await spotifyTracks(
             `Bearer ${accessToken}`,
             "medium_term"
           );
+          setUserDataPlaylist(
+            accessToken,
+            user._id,
+            "Top Songs Medium Term",
+            topTracksMediumTerm,
+            true
+          );
+
           const topTracksLongTerm = await spotifyTracks(
             `Bearer ${accessToken}`,
             "long_term"
+          );
+          setUserDataPlaylist(
+            accessToken,
+            user._id,
+            "Top Songs Long Term",
+            topTracksLongTerm,
+            true
           );
 
           await Promise.all(
@@ -111,21 +138,11 @@ router.get("/updateSongs", async (req, res) => {
 
                   if (playlist.created) {
                     const prevTracks = userContribution?.tracks ?? [];
-                    if (prevTracks.length > 0) {
-                      const response = await axios({
-                        method: "DELETE",
-                        url: `https://api.spotify.com/v1/playlists/${playlist.playlistId}/tracks`,
-                        headers: {
-                          Authorization: `Bearer ${accessToken}`,
-                          "Content-Type": "application/json",
-                        },
-                        data: {
-                          tracks: prevTracks.map((uri) => ({ uri })),
-                          snapshot_id: playlist.snapshotId,
-                        },
-                      });
-                      playlist.snapshotId = response.data.snapshot_id;
-                    }
+                    removeTracksFromPlaylist(
+                      accessToken,
+                      playlist.playlistId,
+                      prevTracks
+                    );
                   }
 
                   if (userContribution) {

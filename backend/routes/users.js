@@ -50,7 +50,7 @@ router.post("/createPlaylist", async (req, res) => {
     token = token.slice(7);
   }
 
-  const playlistId = await createTempPlaylist(token, userId, name, tracks);
+  const playlistId = await setUserDataPlaylist(token, userId, name, tracks);
 
   if (playlistId) {
     return res.json({ playlistId });
@@ -96,7 +96,75 @@ export const spotifyTracks = async (token, term) => {
   }
 };
 
-export const createTempPlaylist = async (token, userId, name, tracks = []) => {
+export const setUserDataPlaylist = async (
+  token,
+  userId,
+  name,
+  tracks = [],
+  refresh = false
+) => {
+  const user = await User.findOne({ _id: userId });
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const nameToTermDict = {
+    "Top Songs Short Term": "short_term",
+    "Top Songs Medium Term": "medium_term",
+    "Top Songs Long Term": "long_term",
+  };
+  const term = nameToTermDict[name];
+
+  if (!term) {
+    throw new Error("Invalid playlist name");
+  }
+
+  if (!user.topSongs || !user.topSongs[term]?.created) {
+    console.log("setting playlist");
+    const playlistId = await createUserDataPlaylist(
+      token,
+      userId,
+      name,
+      tracks
+    );
+    if (playlistId) {
+      if (!user.topSongs) {
+        user.topSongs = {};
+      }
+      user.topSongs[term] = { created: true, playlistId };
+      await user.save();
+      return playlistId;
+    } else {
+      throw new Error("Error creating playlist");
+    }
+  } else {
+    if (refresh) {
+      await updateUserDataPlaylist(
+        token,
+        user.topSongs[term].playlistId,
+        tracks
+      );
+    }
+    return user.topSongs[term].playlistId;
+  }
+};
+
+export const updateUserDataPlaylist = async (token, playlistId, tracks) => {
+  try {
+    const currentTracks = await getAllTrackUrisFromPlaylist(token, playlistId);
+    removeTracksFromPlaylist(token, playlistId, currentTracks);
+    addTracksToPlaylist(token, playlistId, tracks);
+  } catch (error) {
+    console.error("Error updating playlist:", error);
+  }
+};
+
+export const createUserDataPlaylist = async (
+  token,
+  userId,
+  name,
+  tracks = []
+) => {
   try {
     let playlistId = null;
     if (tracks.length > 0) {
@@ -124,6 +192,48 @@ export const createTempPlaylist = async (token, userId, name, tracks = []) => {
   } catch (error) {
     console.error("Error creating playlist:", error);
     return null;
+  }
+};
+
+const getAllTrackUrisFromPlaylist = async (token, playlistId) => {
+  try {
+    const response = await axios.get(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const trackUris = response.data.items.map((item) => item.track.uri);
+    return trackUris;
+  } catch (error) {
+    console.error("Error getting all track uris from playlist:", error);
+    return null;
+  }
+};
+
+export const removeTracksFromPlaylist = async (token, playlistId, tracks) => {
+  try {
+    if (tracks.length === 0) {
+      console.log("No tracks to remove from playlist");
+      return;
+    }
+
+    await axios.delete(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        data: {
+          tracks: tracks.map((track) => ({ uri: track })),
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Error removing tracks from playlist:", error);
   }
 };
 

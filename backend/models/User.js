@@ -83,6 +83,53 @@ const UserSchema = new Schema({
     ],
     required: false,
   },
+  topSongs: {
+    type: {
+      short_term: {
+        type: {
+          created: {
+            type: Boolean,
+            required: true,
+            default: false,
+          },
+          playlistId: {
+            type: String,
+            required: true,
+          },
+        },
+        required: false,
+      },
+      medium_term: {
+        type: {
+          created: {
+            type: Boolean,
+            required: true,
+            default: false,
+          },
+          playlistId: {
+            type: String,
+            required: true,
+          },
+        },
+        required: false,
+      },
+      long_term: {
+        type: {
+          created: {
+            type: Boolean,
+            required: true,
+            default: false,
+          },
+          playlistId: {
+            type: String,
+            required: true,
+          },
+        },
+        required: false,
+      },
+    },
+    required: false,
+  },
 });
 
 const User = mongoose.model("users", UserSchema);

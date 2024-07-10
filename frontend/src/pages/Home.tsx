@@ -66,7 +66,6 @@ const HomePage: React.FC = () => {
         </Typography>
       ) : (
         <>
-          <h2 style={{ color: "white" }}>Top Songs</h2>
           {topSongs && (
             <>
               <Box sx={{ width: "73%" }}>
@@ -94,7 +93,7 @@ const HomePage: React.FC = () => {
                 </Box>
               </Box>
               <div
-                style={{ position: "relative", width: "75%", height: "772px" }}
+                style={{ position: "relative", width: "75%", height: "732px" }}
               >
                 {topSongs.map((pid, index: number) => (
                   <iframe
@@ -116,6 +115,7 @@ const HomePage: React.FC = () => {
                   ></iframe>
                 ))}
               </div>
+              <div style={{ height: "50px" }} />
             </>
           )}
         </>
