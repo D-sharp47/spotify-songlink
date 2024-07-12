@@ -94,7 +94,7 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
           Group Members
         </Typography>
         <Stack direction="row" alignItems="center">
-          <SearchUsers sxProps={{ width: "80vh" }} ref={searchUsersRef} />
+          <SearchUsers sxProps={{ width: "75vh" }} ref={searchUsersRef} />
           <Button
             variant="contained"
             size="large"
@@ -203,11 +203,6 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
           Close
         </Button>
         <Button
-          // disabled={
-          //     !props.responseText ||
-          //     props.responseText.length > REVIEW_RESPONSE_MAX_LENGTH ||
-          //     (props.editMode && props.responseText === props.initialResponse)
-          // }
           variant="contained"
           type="submit"
           sx={{
@@ -222,7 +217,7 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
             color: "white",
           }}
           // TODO: finish this
-          onClick={() => {}}
+          // onClick={() => {}}
         >
           Create
         </Button>

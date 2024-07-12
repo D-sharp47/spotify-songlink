@@ -17,6 +17,7 @@ import routine from "./routes/routine.js";
 
 dotenv.config();
 const port = process.env.PORT || 8000;
+const host = "0.0.0.0";
 
 const app = express();
 const server = http.createServer(app);
@@ -103,4 +104,6 @@ app.use("/api/routine", routine);
 app.use(notFound);
 app.use(errorHandler);
 
-server.listen(port, () => console.log("Server running on port " + port));
+server.listen(port, host, () =>
+  console.log(`Server running on http://${host}:${port}`)
+);

@@ -77,7 +77,7 @@ const GroupDetailPage: React.FC = () => {
               </Box>
             </Box>
           )}
-          <div style={{ position: "relative", width: "50%", height: "352px" }}>
+          <div style={{ position: "relative", width: "50%", height: "47%" }}>
             {group.playlists?.map(
               (p: { playlistId: string }, index: number) => (
                 <iframe

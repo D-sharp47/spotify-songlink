@@ -24,6 +24,7 @@ const Modal: React.FC<ModalProps> = (props) => {
       fullWidth={props.fullWidth ?? true}
       maxWidth={props.maxWidth ?? "sm"}
       open={props.isOpen}
+      sx={{ padding: "1rem" }}
     >
       <DialogTitle>
         <div
