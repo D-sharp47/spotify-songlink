@@ -33,6 +33,11 @@ jobs:
         run: |
           docker compose build
 
+      - name: Tag Docker images
+        run: |
+          docker tag spotify-songlink-frontend:latest ${{ secrets.DOCKER_USERNAME }}/songlink-frontend:latest
+          docker tag spotify-songlink-backend:latest ${{ secrets.DOCKER_USERNAME }}/songlink-backend:latest
+
       - name: Push Docker images
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/songlink-frontend:latest
