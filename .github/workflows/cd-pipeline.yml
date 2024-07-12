@@ -26,7 +26,7 @@ jobs:
       - name: Run Docker containers
         run: |
           docker run -d -p 8000:8000 --name songlink-backend dsharp47/songlink-backend:latest
-          docker run -d -p 80:80 --name songlink-frontend dsharp47/songlink-frontend:latest
+          docker run -d -p 5173:80 --name songlink-frontend dsharp47/songlink-frontend:latest
           if [ $? -ne 0 ]; then
             echo "Run failed. Exiting..."
             exit 1
