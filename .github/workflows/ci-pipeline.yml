@@ -1,0 +1,46 @@
+name: CI Pipeline
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login Dockerhub
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+
+      - name: Create and populate .env file in backend folder
+        run: |
+          echo "PORT=${{ secrets.PORT }}" >> backend/.env
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> backend/.env
+          echo "SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}" >> backend/.env
+          echo "SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}" >> backend/.env
+          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> backend/.env
+          echo "SCOPE=${{ secrets.SCOPE }}" >> backend/.env
+      
+      - name: Build Docker images
+        run: |
+          docker compose up --build
+          if [ $? -ne 0 ]; then
+            echo "Build failed. Exiting..."
+            exit 1
+          fi
+
+      - name: Push Docker images
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/songlink-frontend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/songlink-backend:latest
+          if [ $? -ne 0 ]; then
+            echo "Push failed. Exiting..."
+            exit 1
+          fi
