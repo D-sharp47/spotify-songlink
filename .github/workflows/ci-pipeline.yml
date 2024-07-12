@@ -28,6 +28,11 @@ jobs:
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> backend/.env
           echo "SCOPE=${{ secrets.SCOPE }}" >> backend/.env
 
+      - name: Tag Docker images
+        run: |
+          docker tag dsharp47/spotify-frontend:latest ${{ secrets.DOCKER_USERNAME }}/songlink-frontend:latest
+          docker tag dsharp47/spotify-backend:latest ${{ secrets.DOCKER_USERNAME }}/songlink-backend:latest
+
       - name: Build Docker images
         run: |
           timeout 15m docker compose build
