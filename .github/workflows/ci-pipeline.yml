@@ -33,13 +33,10 @@ jobs:
           docker tag dsharp47/spotify-frontend:latest ${{ secrets.DOCKER_USERNAME }}/songlink-frontend:latest
           docker tag dsharp47/spotify-backend:latest ${{ secrets.DOCKER_USERNAME }}/songlink-backend:latest
 
-      - name: Build Docker images
+      - name: Tag Docker images
         run: |
-          timeout 15m docker compose build
-          if [ $? -ne 0 ]; then
-            echo "Build failed. Exiting..."
-            exit 1
-          fi
+          docker tag spotify-songlink-frontend:latest ${{ secrets.DOCKER_USERNAME }}/songlink-frontend:latest
+          docker tag spotify-songlink-backend:latest ${{ secrets.DOCKER_USERNAME }}/songlink-backend:latest
 
       - name: Push Docker images
         run: |
