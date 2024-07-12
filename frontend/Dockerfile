@@ -22,7 +22,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 80
 EXPOSE 80
-# for test commit
+# for test commit 2
 
 # Start Nginx server
 CMD ["nginx", "-g", "daemon off;"]
