@@ -30,7 +30,7 @@ jobs:
 
       - name: Build Docker images
         run: |
-          docker compose up --build
+          timeout 15m docker compose --build
           if [ $? -ne 0 ]; then
             echo "Build failed. Exiting..."
             exit 1
