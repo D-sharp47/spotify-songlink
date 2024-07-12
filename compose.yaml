@@ -2,16 +2,16 @@ services:
   backend:
     build:
       context: ./backend
-      image: dsharp47/spotify-backend:latest 
     ports:
       - "8000:8000"
     environment:
       - NODE_ENV=production
+    image: dsharp47/spotify-backend:latest 
 
   frontend:
     build:
       context: ./frontend
-      image: dsharp47/spotify-frontend:latest 
+    image: dsharp47/spotify-frontend:latest 
     ports:
       - "5173:5173"
     environment:
