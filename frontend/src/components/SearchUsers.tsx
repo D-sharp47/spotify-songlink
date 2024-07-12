@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  forwardRef,
-  useImperativeHandle,
-} from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import axios from "../util/axiosApi";
@@ -54,8 +49,8 @@ const SearchUsers = forwardRef(({ sxProps }: { sxProps?: SxProps }, ref) => {
       includeInputInList
       filterSelectedOptions
       value={inputValue}
-      onChange={(event, newValue) => setInputValue(newValue ?? "")}
-      onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
+      onChange={(_event, newValue) => setInputValue(newValue ?? "")}
+      onInputChange={(_event, newInputValue) => setInputValue(newInputValue)}
       renderInput={(params) => (
         <TextField sx={sxProps} {...params} label="Search Users" />
       )}

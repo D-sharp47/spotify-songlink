@@ -54,7 +54,7 @@ const HomePage: React.FC = () => {
     }
   }, [accessToken, user, refreshToken, expires_in, dispatch, navigate]);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 

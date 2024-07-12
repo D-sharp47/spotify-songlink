@@ -34,7 +34,7 @@ const GroupDetailPage: React.FC = () => {
     (p: { created: boolean }) => p.created === true
   ).length;
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue); // Update the selected tab index
     const selectedPlaylist = group.playlists ? group.playlists[newValue] : null;
     if (selectedPlaylist) {
