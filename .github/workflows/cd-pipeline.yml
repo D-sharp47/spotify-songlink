@@ -1,0 +1,33 @@
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Pull Docker images
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/songlink-frontend:latest
+          docker pull ${{ secrets.DOCKER_USERNAME }}/songlink-backend:latest
+          if [ $? -ne 0 ]; then
+            echo "Pull failed. Exiting..."
+            exit 1
+          fi
+      - name: Delete Old Docker containers
+        run: |
+          docker rm -f songlink-frontend || true
+          docker rm -f songlink-backend || true
+      - name: Run Docker containers
+        run: |
+          docker run -d --name songlink-backend -p 8000:8000 --env-file backend/.env ${{ secrets.DOCKER_USERNAME }}/songlink-backend:latest
+          docker run -d --name songlink-frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/songlink-frontend:latest
+          if [ $? -ne 0 ]; then
+            echo "Run failed. Exiting..."
+            exit 1
+          fi
