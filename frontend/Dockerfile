@@ -12,7 +12,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Serve the built files using Nginx
-FROM nginx:alpine
+FROM nginx:1.23.3
 
 # Copy built files from the build stage
 COPY --from=build /usr/src/app/dist /usr/share/nginx/html

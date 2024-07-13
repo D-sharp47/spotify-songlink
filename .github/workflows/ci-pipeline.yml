@@ -35,8 +35,8 @@ jobs:
 
       - name: Tag Docker images
         run: |
-          docker tag spotify-songlink-frontend:latest ${{ secrets.DOCKER_USERNAME }}/songlink-frontend:latest
           docker tag spotify-songlink-backend:latest ${{ secrets.DOCKER_USERNAME }}/songlink-backend:latest
+          docker tag spotify-songlink-frontend:latest ${{ secrets.DOCKER_USERNAME }}/songlink-frontend:latest
 
       - name: Push Docker images
         run: |
