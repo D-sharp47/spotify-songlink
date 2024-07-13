@@ -23,7 +23,7 @@ const WebSocketInvalidator = () => {
     }
   };
 
-  const { sendJsonMessage } = useWebSocket("ws://localhost:8000", {
+  const { sendJsonMessage } = useWebSocket("ws://songlink.co:8000", {
     onMessage: handleWebSocketMessage,
   });
 
