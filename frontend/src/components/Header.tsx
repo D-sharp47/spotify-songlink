@@ -87,7 +87,7 @@ const Header: React.FC = () => {
             >
               <Button
                 onClick={() => {
-                  window.location.href = "http://localhost:8000/api/auth";
+                  window.location.href = "http://songlink.co:8000/api/auth";
                 }}
                 sx={{ my: 2, color: "white", display: "block" }}
               >

@@ -4,7 +4,7 @@ import { Card, CardContent, Typography, Button } from "@mui/material";
 
 const Welcome: React.FC = () => {
   const handleClick = () => {
-    window.location.href = "http://localhost:8000/api/auth";
+    window.location.href = "http://songlink.co:8000/api/auth";
   };
 
   return (
