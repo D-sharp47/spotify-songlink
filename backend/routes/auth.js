@@ -30,7 +30,7 @@ router.get(
       JSON.stringify(userAndTokens)
     );
     res.redirect(
-      `http://localhost:5173?userToken=${encodedUserAndTokenString}`
+      `http://songlink.co:5173?userToken=${encodedUserAndTokenString}`
     );
   }
 );

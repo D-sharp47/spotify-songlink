@@ -13,7 +13,7 @@ const passportConfig = (passport) => {
       {
         clientID: process.env.SPOTIFY_CLIENT_ID,
         clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-        callbackURL: `http://localhost:${port}/api/auth/callback`,
+        callbackURL: `http://songlink.co:${port}/api/auth/callback`,
         scope: process.env.SCOPE,
       },
       async (accessToken, refreshToken, expires_in, profile, done) => {

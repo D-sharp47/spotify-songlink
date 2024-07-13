@@ -3,7 +3,7 @@ import { AxiosError } from "axios";
 
 export const getAllGroups = async () => {
   try {
-    const response = await axios.get("/api/groups");
+    const response = await axios.get("/groups");
     if (response.status < 300) {
       return response.data;
     }
@@ -95,7 +95,7 @@ export const searchUsers = async (searchTerm: string) => {
 
 export const fetchSongsByTerm = async (userID: string, term: string) => {
   try {
-    const response = await axios.get(`/api/users?userId=${userID}&term=${term}`);
+    const response = await axios.get(`http://songlink.co:8000/api/users?userId=${userID}&term=${term}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching songs:", error);
@@ -113,13 +113,13 @@ export const fetchTopSongs = async (userID: string) => {
     let longTermPlaylist: string | null = null;
 
     if (shortTerm.length > 0) {
-       shortTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Top Songs Short Term", tracks: shortTerm})).data.playlistId;
+       shortTermPlaylist = (await axios.post("http://songlink.co:8000/api/users/createPlaylist", {name: "Top Songs Short Term", tracks: shortTerm})).data.playlistId;
     }
     if (mediumTerm.length > 0) {
-       mediumTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Top Songs Medium Term", tracks: mediumTerm})).data.playlistId;
+       mediumTermPlaylist = (await axios.post("http://songlink.co:8000/api/users/createPlaylist", {name: "Top Songs Medium Term", tracks: mediumTerm})).data.playlistId;
     }
     if (longTerm.length > 0) {
-       longTermPlaylist = (await axios.post("api/users/createPlaylist", {name: "Top Songs Long Term", tracks: longTerm})).data.playlistId;
+       longTermPlaylist = (await axios.post("http://songlink.co:8000/api/users/createPlaylist", {name: "Top Songs Long Term", tracks: longTerm})).data.playlistId;
     }
 
     console.log("\nShort pid: ", shortTermPlaylist);
