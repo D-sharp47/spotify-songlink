@@ -3,7 +3,7 @@ import User from "../models/User.js";
 import dotenv from "dotenv";
 
 dotenv.config();
-const port = process.env.PORT;
+const port = process.env.PORT || 8000;
 const backendUrl = process.env.BACKEND_URL;
 
 const SpotifyStrategy = passportSpotify.Strategy;

@@ -16,7 +16,7 @@ import users from "./routes/users.js";
 import routine from "./routes/routine.js";
 
 dotenv.config();
-const port = process.env.PORT;
+const port = process.env.PORT || 8000;
 const host = "0.0.0.0";
 const frontendUrl = process.env.FRONTEND_URL;
 
