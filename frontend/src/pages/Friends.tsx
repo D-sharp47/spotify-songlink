@@ -62,7 +62,7 @@ const FriendsPage: React.FC = () => {
         alignItems="center"
         style={{ marginBottom: "20px" }}
       >
-        <SearchUsers sxProps={{ width: "12vw" }} ref={searchUsersRef} />
+        <SearchUsers label="Search Users" ref={searchUsersRef} />
         <Button
           variant="contained"
           size="large"
