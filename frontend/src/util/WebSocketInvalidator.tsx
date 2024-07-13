@@ -4,6 +4,8 @@ import useWebSocket from "react-use-websocket";
 import { useSelector } from "react-redux";
 import { StoreType } from "./types";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const WebSocketInvalidator = () => {
   const queryClient = useQueryClient();
   const userId = useSelector((state: StoreType) => state.auth.user?._id);
@@ -23,7 +25,7 @@ const WebSocketInvalidator = () => {
     }
   };
 
-  const { sendJsonMessage } = useWebSocket("ws://songlink.co:8000", {
+  const { sendJsonMessage } = useWebSocket(`ws://${backendUrl}`, {
     onMessage: handleWebSocketMessage,
   });
 

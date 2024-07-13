@@ -3,7 +3,8 @@ import User from "../models/User.js";
 import dotenv from "dotenv";
 
 dotenv.config();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT;
+const backendUrl = process.env.BACKEND_URL;
 
 const SpotifyStrategy = passportSpotify.Strategy;
 
@@ -13,7 +14,7 @@ const passportConfig = (passport) => {
       {
         clientID: process.env.SPOTIFY_CLIENT_ID,
         clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-        callbackURL: `http://songlink.co:${port}/api/auth/callback`,
+        callbackURL: `${backendUrl}:${port}/api/auth/callback`,
         scope: process.env.SCOPE,
       },
       async (accessToken, refreshToken, expires_in, profile, done) => {

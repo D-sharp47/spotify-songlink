@@ -1,10 +1,14 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import axios from "../util/axiosApi";
-import { SxProps } from "@mui/material";
+import { searchUsers } from "../util/api";
 
-const SearchUsers = forwardRef(({ sxProps }: { sxProps?: SxProps }, ref) => {
+interface SearchUsersProps {
+  label: string;
+}
+
+const SearchUsers = forwardRef((props: SearchUsersProps, ref) => {
+  const label = props.label;
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState([]);
 
@@ -12,10 +16,8 @@ const SearchUsers = forwardRef(({ sxProps }: { sxProps?: SxProps }, ref) => {
     // Fetch user data from the API
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(
-          `/api/users/search?searchTerm=${inputValue}`
-        );
-        setOptions(response.data);
+        const response = await searchUsers(inputValue);
+        setOptions(response?.data ?? []);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -42,7 +44,12 @@ const SearchUsers = forwardRef(({ sxProps }: { sxProps?: SxProps }, ref) => {
   return (
     <Autocomplete
       id="user-autocomplete"
-      sx={{ borderRadius: "0.25rem", backgroundColor: "white", color: "black" }}
+      sx={{
+        borderRadius: "0.25rem",
+        backgroundColor: "white",
+        color: "black",
+        width: "100%",
+      }}
       options={options}
       getOptionLabel={(option) => option}
       autoComplete
@@ -51,9 +58,7 @@ const SearchUsers = forwardRef(({ sxProps }: { sxProps?: SxProps }, ref) => {
       value={inputValue}
       onChange={(_event, newValue) => setInputValue(newValue ?? "")}
       onInputChange={(_event, newInputValue) => setInputValue(newInputValue)}
-      renderInput={(params) => (
-        <TextField sx={sxProps} {...params} label="Search Users" />
-      )}
+      renderInput={(params) => <TextField {...params} label={label} />}
     />
   );
 });

@@ -16,8 +16,9 @@ import users from "./routes/users.js";
 import routine from "./routes/routine.js";
 
 dotenv.config();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT;
 const host = "0.0.0.0";
+const frontendUrl = process.env.FRONTEND_URL;
 
 const app = express();
 const server = http.createServer(app);
@@ -50,7 +51,7 @@ app.use(passport.session());
 app.use(logger);
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://songlink.co:5173");
+  res.setHeader("Access-Control-Allow-Origin", frontendUrl);
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
@@ -60,6 +61,7 @@ app.use((req, res, next) => {
     "Origin, X-Requested-With, Content-Type, Accept, userid, Authorization"
   );
   res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Max-Age", "3600");
   next();
 });
 

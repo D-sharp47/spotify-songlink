@@ -3,9 +3,9 @@ import React from "react";
 import { Card, CardContent, Typography, IconButton, Grid } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { NavLink } from "react-router-dom";
-import axios from "../util/axiosApi";
 import { AxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
+import { deleteGroup } from "../util/api";
 
 export interface GroupProps {
   readonly _id: string;
@@ -21,7 +21,7 @@ const GroupCard: React.FC<GroupProps> = (props) => {
   const handleDeleteClick = async (event: React.MouseEvent) => {
     event.preventDefault();
     try {
-      await axios.delete(`/api/groups/delete?groupId=${props._id}`);
+      await deleteGroup(props._id);
       queryClient.invalidateQueries({ queryKey: ["groups"] });
     } catch (error) {
       const axiosError = error as AxiosError;

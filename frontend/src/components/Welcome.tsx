@@ -2,9 +2,11 @@ import React from "react";
 
 import { Card, CardContent, Typography, Button } from "@mui/material";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const Welcome: React.FC = () => {
   const handleClick = () => {
-    window.location.href = "http://songlink.co:8000/api/auth";
+    window.location.href = `http://${backendUrl}/api/auth`;
   };
 
   return (

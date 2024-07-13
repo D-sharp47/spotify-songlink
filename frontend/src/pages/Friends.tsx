@@ -1,12 +1,11 @@
 import React, { useRef } from "react";
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
-import axios from "../util/axiosApi";
 import { AxiosError } from "axios";
 import { Button, Stack } from "@mui/material";
 import Friend from "../components/Friend";
 import SearchUsers from "../components/SearchUsers";
-import { getFriends } from "../util/api";
+import { addFriend, getFriends } from "../util/api";
 import { StoreType } from "../util/types";
 
 const FriendsPage: React.FC = () => {
@@ -24,9 +23,9 @@ const FriendsPage: React.FC = () => {
     staleTime: 30 * 60 * 1000,
   });
 
-  const addFriend = async (friendID: string) => {
+  const handleAddFriend = async (friendID: string) => {
     try {
-      await axios.post(`/api/friends/add?friendId=${friendID}`);
+      await addFriend(friendID);
     } catch (error) {
       const axiosError = error as AxiosError;
       console.error(axiosError.response?.data);
@@ -36,7 +35,7 @@ const FriendsPage: React.FC = () => {
   const handleFormSubmit = async () => {
     const friendID = searchUsersRef.current.getSelectedUser();
     if (friendID) {
-      await addFriend(friendID);
+      await handleAddFriend(friendID);
       searchUsersRef.current && searchUsersRef.current.clearInput();
     }
   };

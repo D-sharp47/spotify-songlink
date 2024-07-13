@@ -26,7 +26,7 @@ const RootLayout: React.FC = () => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
       axios.defaults.headers.common["userId"] = userId;
     }
-    let logoutTimer: number;
+    let logoutTimer: NodeJS.Timeout;
     const logoutTimeInMs = 1000 * 60 * 60 * 24; // 24hr
     const resetTimer = () => {
       clearTimeout(logoutTimer);

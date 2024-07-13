@@ -1,7 +1,6 @@
 import {
   Button,
   Stack,
-  Typography,
   TextField,
   FormControl,
   FormLabel,
@@ -16,9 +15,9 @@ import { useSelector } from "react-redux";
 import React, { useState, useRef } from "react";
 import SearchUsers from "./SearchUsers";
 import ClearIcon from "@mui/icons-material/Clear";
-import axios from "../util/axiosApi";
 import { useQueryClient } from "@tanstack/react-query";
 import { StoreType } from "../util/types";
+import { createGroup } from "../util/api";
 
 interface CreateGroupModalContentProps {
   toggleGroupModal: () => void;
@@ -30,6 +29,7 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
   const playlistTypes = ["Short Term", "Medium Term", "Long Term"];
   const userId = useSelector((state: StoreType) => state.auth.user._id);
   const [groupName, setGroupName] = useState("");
+  const [groupNameError, setGroupNameError] = useState(false);
   const [groupMembers, setGroupMembers] = useState<string[]>([userId]);
   const [playlists, setPlaylists] = useState<string[]>(playlistTypes);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,15 +58,15 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (groupName === "") {
+      setGroupNameError(true);
+      return;
+    }
 
     try {
-      const response = await axios.post("/api/groups/create", {
-        name: groupName,
-        members: groupMembers,
-        playlists,
-      });
+      const response = await createGroup(groupName, groupMembers, playlists);
 
-      if (response.status < 300) {
+      if (response && response.status < 300) {
         queryClient.invalidateQueries({ queryKey: ["groups"] });
         props.toggleGroupModal();
       }
@@ -78,23 +78,20 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
   return (
     <form onSubmit={handleSubmit}>
       <Stack direction="column">
-        <Typography variant="h6" style={{ marginBottom: "20px" }}>
-          Group Name
-        </Typography>
         <TextField
-          sx={{ width: "100%" }}
+          sx={{ width: "100%", marginY: "2rem" }}
+          label="Group Name*"
+          error={groupNameError}
+          helperText={groupNameError ? "Group name is required" : ""}
           variant="outlined"
           value={groupName}
-          onChange={(e) => setGroupName(e.target.value)}
+          onChange={(e) => {
+            setGroupNameError(false);
+            setGroupName(e.target.value);
+          }}
         />
-        <Typography
-          variant="h6"
-          style={{ marginBottom: "20px", marginTop: "20px" }}
-        >
-          Group Members
-        </Typography>
         <Stack direction="row" alignItems="center">
-          <SearchUsers sxProps={{ width: "75vh" }} ref={searchUsersRef} />
+          <SearchUsers label="Group Members" ref={searchUsersRef} />
           <Button
             variant="contained"
             size="large"

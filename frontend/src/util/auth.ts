@@ -1,6 +1,8 @@
 import { redirect } from 'react-router-dom';
 import axios from 'axios';
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 export const setToken = (tokens?: {accessToken: string, refreshToken: string, expires_in: number} | null, userId?: string | null) => {
   if (tokens && userId) {
     localStorage.setItem("accessToken", tokens.accessToken);
@@ -68,7 +70,7 @@ const refreshToken = async () => {
   }
 
   try {
-    const response = await axios.post('/api/auth/refresh', {
+    const response = await axios.post(`http://${backendUrl}/api/auth/refresh`, {
       refreshToken: refreshToken,
     });
 

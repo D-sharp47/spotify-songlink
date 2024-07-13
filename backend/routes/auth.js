@@ -5,6 +5,7 @@ import axios from "axios";
 
 const router = express.Router();
 dotenv.config();
+const frontendUrl = process.env.FRONTEND_URL;
 
 // Authentication Route
 router.get(
@@ -29,9 +30,7 @@ router.get(
     const encodedUserAndTokenString = encodeURIComponent(
       JSON.stringify(userAndTokens)
     );
-    res.redirect(
-      `http://songlink.co:5173?userToken=${encodedUserAndTokenString}`
-    );
+    res.redirect(`${frontendUrl}?userToken=${encodedUserAndTokenString}`);
   }
 );
 

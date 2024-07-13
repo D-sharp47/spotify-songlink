@@ -9,6 +9,9 @@ import UserMenu from "./UserMenu";
 import { Button } from "@mui/material";
 import { StoreType } from "../util/types";
 
+// Access the environment variable
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const Header: React.FC = () => {
   const isLoggedIn = useSelector(
     (state: StoreType) => state.auth.isAuthenticated
@@ -87,7 +90,7 @@ const Header: React.FC = () => {
             >
               <Button
                 onClick={() => {
-                  window.location.href = "http://songlink.co:8000/api/auth";
+                  window.location.href = `http://${backendUrl}/api/auth`;
                 }}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
@@ -100,4 +103,5 @@ const Header: React.FC = () => {
     </Box>
   );
 };
+
 export default Header;

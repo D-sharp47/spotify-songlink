@@ -1,9 +1,11 @@
 import axios from "../util/axiosApi";
 import { AxiosError } from "axios";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 export const getAllGroups = async () => {
   try {
-    const response = await axios.get("/groups");
+    const response = await axios.get(`http://${backendUrl}/api/groups`);
     if (response.status < 300) {
       return response.data;
     }
@@ -15,7 +17,7 @@ export const getAllGroups = async () => {
 
 export const getGroup = async (groupId: string) => {
   try {
-    const response = await axios.get(`/api/groups/detail/?groupId=${groupId}`);
+    const response = await axios.get(`http://${backendUrl}/api/groups/detail/?groupId=${groupId}`);
     if (response.status < 300) {
       return response.data;
     }
@@ -26,11 +28,13 @@ export const getGroup = async (groupId: string) => {
 
 export const createGroup = async (name: string, members: string[], playlists: string[]) => {
   try {
-      await axios.post("/api/groups/create", {
+      const response = await axios.post(`http://${backendUrl}/api/groups/create`, {
       name,
       members,
       playlists,
     });
+
+    return response;
   } catch (err) {
     console.log(err);
   }
@@ -38,7 +42,7 @@ export const createGroup = async (name: string, members: string[], playlists: st
 
 export const deleteGroup = async (groupId: string) => {
   try {
-    await axios.delete(`/api/groups/delete?groupId=${groupId}`);
+    await axios.delete(`http://${backendUrl}/api/groups/delete?groupId=${groupId}`);
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(axiosError.response?.data);
@@ -47,7 +51,7 @@ export const deleteGroup = async (groupId: string) => {
 
 export const getFriends = async () => {
   try {
-    const response = await axios.get("/api/friends");
+    const response = await axios.get(`http://${backendUrl}/api/friends`);
     if (response.status < 300) {
       return response.data;
     }
@@ -59,7 +63,7 @@ export const getFriends = async () => {
 
 export const addFriend = async (friendId: string) => {
   try {
-    await axios.post(`/api/friends/add?friendId${friendId}`);
+    await axios.post(`http://${backendUrl}/api/friends/add?friendId=${friendId}`);
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(axiosError.response?.data);
@@ -68,7 +72,7 @@ export const addFriend = async (friendId: string) => {
 
 export const acceptFriend = async (friendId: string) => {
   try {
-    await axios.put(`/api/friends/accept?friendId${friendId}`);
+    await axios.put(`http://${backendUrl}/api/friends/accept?friendId${friendId}`);
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(axiosError.response?.data);
@@ -77,7 +81,7 @@ export const acceptFriend = async (friendId: string) => {
 
 export const deleteFriend = async (friendId: string) => {
   try {
-    axios.delete(`/api/friends/remove?friendId=${friendId}`);
+    axios.delete(`http://${backendUrl}/api/friends/remove?friendId=${friendId}`);
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(axiosError.response?.data);
@@ -86,8 +90,8 @@ export const deleteFriend = async (friendId: string) => {
 
 export const searchUsers = async (searchTerm: string) => {
   try {
-    const response = await axios.get(`/api/users/search?searchTerm=${searchTerm}`);
-    return response.data;
+    const response = await axios.get(`http://${backendUrl}/api/users/search?searchTerm=${searchTerm}`);
+    return response;
   } catch (error) {
     console.error("Error fetching users:", error);
   }
@@ -95,7 +99,7 @@ export const searchUsers = async (searchTerm: string) => {
 
 export const fetchSongsByTerm = async (userID: string, term: string) => {
   try {
-    const response = await axios.get(`http://songlink.co:8000/api/users?userId=${userID}&term=${term}`);
+    const response = await axios.get(`http://${backendUrl}/api/users?userId=${userID}&term=${term}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching songs:", error);
@@ -113,13 +117,13 @@ export const fetchTopSongs = async (userID: string) => {
     let longTermPlaylist: string | null = null;
 
     if (shortTerm.length > 0) {
-       shortTermPlaylist = (await axios.post("http://songlink.co:8000/api/users/createPlaylist", {name: "Top Songs Short Term", tracks: shortTerm})).data.playlistId;
+       shortTermPlaylist = (await axios.post(`http://${backendUrl}/api/users/createPlaylist`, {name: "Top Songs Short Term", tracks: shortTerm})).data.playlistId;
     }
     if (mediumTerm.length > 0) {
-       mediumTermPlaylist = (await axios.post("http://songlink.co:8000/api/users/createPlaylist", {name: "Top Songs Medium Term", tracks: mediumTerm})).data.playlistId;
+       mediumTermPlaylist = (await axios.post(`http://${backendUrl}/api/users/createPlaylist`, {name: "Top Songs Medium Term", tracks: mediumTerm})).data.playlistId;
     }
     if (longTerm.length > 0) {
-       longTermPlaylist = (await axios.post("http://songlink.co:8000/api/users/createPlaylist", {name: "Top Songs Long Term", tracks: longTerm})).data.playlistId;
+       longTermPlaylist = (await axios.post(`http://${backendUrl}/api/users/createPlaylist`, {name: "Top Songs Long Term", tracks: longTerm})).data.playlistId;
     }
 
     console.log("\nShort pid: ", shortTermPlaylist);
