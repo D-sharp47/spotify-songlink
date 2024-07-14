@@ -72,7 +72,7 @@ export const addFriend = async (friendId: string) => {
 
 export const acceptFriend = async (friendId: string) => {
   try {
-    await axios.put(`http://${backendUrl}/api/friends/accept?friendId${friendId}`);
+    await axios.put(`http://${backendUrl}/api/friends/accept?friendId=${friendId}`);
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(axiosError.response?.data);
