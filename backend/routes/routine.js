@@ -188,7 +188,7 @@ router.get("/updateSongs", async (req, res) => {
 
                 while (retryCount < MAX_RETRIES) {
                   try {
-                    await operation();
+                    await groupDoc.save();
                     break;
                   } catch (error) {
                     retryCount++;
