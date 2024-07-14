@@ -1,7 +1,7 @@
 import { redirect } from 'react-router-dom';
 import axios from 'axios';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "songlink.co";
+const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "songlink.co:8000";
 
 export const setToken = (tokens?: {accessToken: string, refreshToken: string, expires_in: number} | null, userId?: string | null) => {
   if (tokens && userId) {

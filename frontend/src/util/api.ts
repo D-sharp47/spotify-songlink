@@ -1,7 +1,7 @@
 import axios from "../util/axiosApi";
 import { AxiosError } from "axios";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "songlink.co"; // Forcing for now
+const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "songlink.co:8000"; // Forcing for now
 
 export const getAllGroups = async () => {
   try {
