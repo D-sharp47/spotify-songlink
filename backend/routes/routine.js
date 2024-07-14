@@ -10,10 +10,7 @@ import {
 
 const router = express.Router();
 
-router.post("/updateSongs", (req, res) => {
-  const groupToUpdate = req.body.groups;
-  updateSongs(req, res, null);
-});
+router.post("/updateSongs", (req, res) => updateSongs(req, res, null));
 
 export const updateSongs = async (req, res, groupToUpdate) => {
   try {
