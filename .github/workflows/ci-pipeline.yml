@@ -20,17 +20,20 @@ jobs:
         run: |
           echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
 
-      - name: Create and populate .env file
+      - name: Create and populate .env file for backend
         run: |
           echo "PORT=${{ secrets.PORT }}" >> backend/.env
           echo "BACKEND_URL= http://songlink.co:8000" >> backend/.env
           echo "FRONTEND_URL= http://songlink.co" >> backend/.env
-          echo "VITE_BACKEND_URL= http://songlink.co:8000" >> frontend/.env
           echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> backend/.env
           echo "SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}" >> backend/.env
           echo "SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}" >> backend/.env
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> backend/.env
           echo "SCOPE=${{ secrets.SCOPE }}" >> backend/.env
+
+      - name: Create and populate .env file for frontend
+        run: |
+          echo "VITE_BACKEND_URL=http://songlink.co:8000" >> frontend/.env
 
       - name: Build Docker images
         run: |
