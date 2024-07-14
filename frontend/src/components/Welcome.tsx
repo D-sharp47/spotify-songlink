@@ -11,6 +11,9 @@ const Welcome: React.FC = () => {
 
   return (
     <>
+      <Typography variant="h1" sx={{ color: "white" }}>
+        Backend URL: {backendUrl}
+      </Typography>
       <Card
         sx={{
           maxWidth: 600,
