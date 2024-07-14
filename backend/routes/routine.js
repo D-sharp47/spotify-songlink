@@ -182,7 +182,33 @@ router.get("/updateSongs", async (req, res) => {
                   }
                 }
 
-                await groupDoc.save();
+                const MAX_RETRIES = 3;
+                const RETRY_DELAY_MS = 1000; // 1 second delay between retries
+                let retryCount = 0;
+
+                while (retryCount < MAX_RETRIES) {
+                  try {
+                    await operation();
+                    break;
+                  } catch (error) {
+                    retryCount++;
+                    if (retryCount < MAX_RETRIES) {
+                      console.log(
+                        `Retrying operation (attempt ${retryCount})...`
+                      );
+                      await new Promise((resolve) =>
+                        setTimeout(resolve, RETRY_DELAY_MS)
+                      );
+                    }
+                  }
+                }
+
+                if (!saveSuccess) {
+                  console.error(
+                    `Failed to complete operation after ${MAX_RETRIES} retries.`
+                  );
+                  // Handle failure case, notify admin, etc.
+                }
               } catch (error) {
                 console.error(
                   `Error updating group ${group.id} for user ${user._id}:`,
