@@ -17,6 +17,8 @@ FROM nginx:1.23.3
 # Copy built files from the build stage
 COPY --from=build /usr/src/app/dist /usr/share/nginx/html
 
+COPY . .
+
 # Copy custom nginx configuration
 # COPY nginx.conf /etc/nginx/nginx.conf
 
