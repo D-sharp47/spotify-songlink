@@ -202,13 +202,6 @@ router.get("/updateSongs", async (req, res) => {
                     }
                   }
                 }
-
-                if (!saveSuccess) {
-                  console.error(
-                    `Failed to complete operation after ${MAX_RETRIES} retries.`
-                  );
-                  // Handle failure case, notify admin, etc.
-                }
               } catch (error) {
                 console.error(
                   `Error updating group ${group.id} for user ${user._id}:`,
