@@ -1,6 +1,7 @@
 import express from "express";
 import User from "../models/User.js";
 import Group from "../models/Group.js";
+import { updateSongs } from "./routine.js";
 
 const router = express.Router();
 
@@ -15,11 +16,6 @@ router.get("/detail", async (req, res) => {
 
 router.post("/create", async (req, res) => {
   const result = await createGroup(req, res);
-});
-
-router.post("/update", async (req, res) => {
-  const groupId = req.query.groupId;
-  const result = await updateGroup(req, res, groupId);
 });
 
 router.delete("/delete", async (req, res) => {
@@ -64,6 +60,7 @@ const getGroups = async (req, res) => {
 
 const createGroup = async (req, res) => {
   try {
+    const accessToken = req.headers.authorization;
     const userId = req.headers.userid;
     const groupName = req.body.name;
     const members = req.body.members.map((member) => {
@@ -96,16 +93,11 @@ const createGroup = async (req, res) => {
 
     for (const member of members) {
       const user = await User.findOne({ _id: member.userId });
-
-      const contributions = playlists.map((playlist) => ({
-        term: playlist.name,
-        songsPerUser: settings.songsPerMember,
-        songs: [],
-      }));
-
-      user.groups.push({ id: groupId, status: member.status, contributions });
+      user.groups.push({ id: groupId, status: member.status });
       await user.save();
     }
+
+    await updateSongs(accessToken, userId, groupId);
 
     const notifyClients = req.app.get("notifyClients");
     const userIds = members
@@ -117,10 +109,6 @@ const createGroup = async (req, res) => {
     console.error("Error creating group:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
-
-const updateGroup = async (req, res, groupId) => {
-  // Your update logic here
 };
 
 const deleteGroup = async (req, res, groupId) => {

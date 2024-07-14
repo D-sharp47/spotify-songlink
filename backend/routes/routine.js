@@ -10,12 +10,22 @@ import {
 
 const router = express.Router();
 
-router.get("/updateSongs", async (req, res) => {
+router.post("/updateSongs", (req, res) => {
+  const groupToUpdate = req.body.groups;
+  updateSongs(req, res, null);
+});
+
+export const updateSongs = async (req, res, groupToUpdate) => {
   try {
-    const users = await User.find(
-      { groups: { $exists: true, $not: { $size: 0 } } },
-      "_id refreshToken groups"
-    );
+    const users = groupToUpdate
+      ? await User.find(
+          { groups: { $elemMatch: { id: { $in: groupToUpdate } } } },
+          "_id refreshToken groups"
+        )
+      : await User.find(
+          { groups: { $exists: true, $not: { $size: 0 } } },
+          "_id refreshToken groups"
+        );
 
     const refreshedUsers = await Promise.all(
       users.map(async (user) => {
@@ -65,8 +75,10 @@ router.get("/updateSongs", async (req, res) => {
             true
           );
 
+          const userGroups = groupToUpdate ? [groupToUpdate] : user.groups;
+
           await Promise.all(
-            user.groups.map(async (group) => {
+            userGroups.map(async (group) => {
               try {
                 const groupDoc = await Group.findById(group.id);
                 if (!groupDoc) {
@@ -229,7 +241,7 @@ router.get("/updateSongs", async (req, res) => {
     console.error("Error fetching users:", error);
     res.status(500).json({ message: "Failed to fetch users" });
   }
-});
+};
 
 export const getAccessTokenFromRefresh = async (refreshToken) => {
   try {
