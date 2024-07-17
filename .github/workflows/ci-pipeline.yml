@@ -23,7 +23,7 @@ jobs:
       - name: Create and populate .env file for backend
         run: |
           echo "PORT=${{ secrets.PORT }}" >> backend/.env
-          echo "BACKEND_URL= 3.140.8.141" >> backend/.env
+          echo "BACKEND_URL= http://3.140.8.141" >> backend/.env
           echo "FRONTEND_URL= https://songlink.co" >> backend/.env
           echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> backend/.env
           echo "SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}" >> backend/.env
