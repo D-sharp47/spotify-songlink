@@ -109,6 +109,10 @@ const notifyClients = (userIds, message) => {
 
 app.set("notifyClients", notifyClients);
 
+app.get("/api", (req, res) => {
+  res.json({ status: "ok" });
+});
+
 // Routes
 app.use("/api/auth", auth);
 app.use("/api/friends", friends);
