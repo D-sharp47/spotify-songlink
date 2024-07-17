@@ -125,5 +125,5 @@ app.use(notFound);
 app.use(errorHandler);
 
 server.listen(port, host, () =>
-  console.log(`Server running on http://${host}:${port}`)
+  console.log(`Server running on https://${host}:${port}`)
 );

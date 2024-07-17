@@ -90,7 +90,7 @@ const Header: React.FC = () => {
             >
               <Button
                 onClick={() => {
-                  window.location.href = `http://${backendUrl}/api/auth`;
+                  window.location.href = `https://${backendUrl}/api/auth`;
                 }}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
