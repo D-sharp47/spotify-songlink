@@ -70,7 +70,7 @@ const refreshToken = async () => {
   }
 
   try {
-    const response = await axios.post(`http://${backendUrl}/api/auth/refresh`, {
+    const response = await axios.post(`https://${backendUrl}/api/auth/refresh`, {
       refreshToken: refreshToken,
     });
 
