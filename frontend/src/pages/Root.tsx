@@ -21,7 +21,6 @@ const RootLayout: React.FC = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      console.log("setting headers");
       const accessToken = localStorage.getItem("accessToken");
       axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
       axios.defaults.headers.common["userId"] = userId;

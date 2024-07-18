@@ -109,7 +109,7 @@ const notifyClients = (userIds, message) => {
 
 app.set("notifyClients", notifyClients);
 
-app.get("/api", (req, res) => {
+app.get("/api/status", (req, res) => {
   res.json({ status: "ok" });
 });
 
