@@ -25,7 +25,11 @@ const WebSocketInvalidator = () => {
     }
   };
 
-  const { sendJsonMessage } = useWebSocket(`wss://${backendUrl}/ws`, {
+  const wsUrl = backendUrl.includes("localhost")
+    ? `ws://${backendUrl.split("//")[1]}`
+    : `wss://${backendUrl.split("//")[1]}/ws`;
+
+  const { sendJsonMessage } = useWebSocket(wsUrl, {
     onMessage: handleWebSocketMessage,
   });
 

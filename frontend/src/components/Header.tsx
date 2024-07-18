@@ -10,7 +10,7 @@ import { Button } from "@mui/material";
 import { StoreType } from "../util/types";
 
 // Access the environment variable
-const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "songlink.co"; // Forcing for now
+const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "https://songlink.co"; // Forcing for now
 
 const Header: React.FC = () => {
   const isLoggedIn = useSelector(
@@ -90,7 +90,7 @@ const Header: React.FC = () => {
             >
               <Button
                 onClick={() => {
-                  window.location.href = `https://${backendUrl}/api/auth`;
+                  window.location.href = `${backendUrl}/api/auth`;
                 }}
                 sx={{ my: 2, color: "white", display: "block" }}
               >

@@ -1,7 +1,7 @@
 import { redirect } from 'react-router-dom';
 import axios from 'axios';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "songlink.co";
+const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "https://songlink.co";
 
 export const setToken = (tokens?: {accessToken: string, refreshToken: string, expires_in: number} | null, userId?: string | null) => {
   if (tokens && userId) {
@@ -14,7 +14,6 @@ export const setToken = (tokens?: {accessToken: string, refreshToken: string, ex
     axios.defaults.headers.common['userId'] = userId;
   } else {
     // Delete headers
-    console.log("Deleting headers")
     delete axios.defaults.headers.common['Authorization'];
     delete axios.defaults.headers.common['userId'];
     localStorage.removeItem("accessToken");
@@ -70,7 +69,7 @@ const refreshToken = async () => {
   }
 
   try {
-    const response = await axios.post(`https://${backendUrl}/api/auth/refresh`, {
+    const response = await axios.post(`${backendUrl}/api/auth/refresh`, {
       refreshToken: refreshToken,
     });
 
