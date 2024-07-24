@@ -2,11 +2,13 @@ import React, { useRef } from "react";
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { Box, Button, Card, Grid, Stack, Typography } from "@mui/material";
+import { Box, Button, Card, Stack, Typography } from "@mui/material";
 import Friend from "../components/Friend";
 import SearchUsers from "../components/SearchUsers";
 import { addFriend, getFriends } from "../util/api";
 import { StoreType } from "../util/types";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardControlKeyIcon from "@mui/icons-material/KeyboardControlKey";
 
 const FriendsPage: React.FC = () => {
   const userID = useSelector((state: StoreType) => state.auth.user._id);
@@ -56,26 +58,15 @@ const FriendsPage: React.FC = () => {
         </p>
       ) : (
         <>
-          <Stack direction="row" sx={{ alignItems: "center", mb: "1.5rem" }}>
+          <Stack
+            direction="row"
+            sx={{ alignItems: "center", mb: "1.5rem", width: "50%" }}
+          >
             <Typography sx={{ color: "#47a661", mr: "1rem", flex: "none" }}>
               {userID}: Friends
             </Typography>
-            <Button
-              variant="contained"
-              size="medium"
-              sx={{
-                backgroundColor: "#47a661",
-                "&:hover": {
-                  backgroundColor: "#367a4e",
-                },
-                color: "white",
-                mr: "1rem",
-                flex: "none",
-              }}
-            >
-              Requests
-            </Button>
-            <div style={{ width: "20rem" }}>
+
+            <div style={{ flex: 1 }}>
               <SearchUsers
                 label="Search Users"
                 textFieldSize="small"
@@ -102,112 +93,91 @@ const FriendsPage: React.FC = () => {
             <Card
               sx={{
                 backgroundColor: "#2B2B2B",
-                width: "40rem",
+                width: "50%",
                 p: "1rem",
                 justifyContent: "center",
+                maxHeight: "728px",
+                overflowY: "auto",
               }}
             >
               <Stack direction="column" spacing={2}>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "gray", ml: "0.5rem", mt: "0.5rem" }}
-                >
-                  Incoming Requests
-                </Typography>
-                {friends.map(
-                  (f: {
-                    friendId: string;
-                    friendName: string;
-                    friendProfileImages: {
-                      url: string;
-                      height: number;
-                      width: number;
-                    }[];
-                    status: string;
-                  }) => {
-                    if (f.status === "req_in") {
-                      return (
-                        <Friend
-                          key={f.friendId}
-                          friendId={f.friendId}
-                          friendName={f.friendName}
-                          friendProfileImages={f.friendProfileImages}
-                          friendStatus={f.status}
-                        />
-                      );
-                    }
-                  }
-                )}
-
-                <Typography
-                  variant="body2"
-                  sx={{ color: "gray", ml: "0.5rem", mt: "0.5rem" }}
-                >
-                  Outgoing Requests
-                </Typography>
-
-                {friends.map(
-                  (f: {
-                    friendId: string;
-                    friendName: string;
-                    friendProfileImages: {
-                      url: string;
-                      height: number;
-                      width: number;
-                    }[];
-                    status: string;
-                  }) => {
-                    if (f.status === "req_out") {
-                      return (
-                        <Friend
-                          key={f.friendId}
-                          friendId={f.friendId}
-                          friendName={f.friendName}
-                          friendProfileImages={f.friendProfileImages}
-                          friendStatus={f.status}
-                        />
-                      );
-                    }
-                  }
-                )}
-
-                <Typography
-                  variant="body2"
-                  sx={{ color: "gray", ml: "0.5rem", mt: "0.5rem" }}
-                >
-                  Friends
-                </Typography>
-
-                {friends.map(
-                  (f: {
-                    friendId: string;
-                    friendName: string;
-                    friendProfileImages: {
-                      url: string;
-                      height: number;
-                      width: number;
-                    }[];
-                    status: string;
-                  }) => {
-                    if (f.status === "friends") {
-                      return (
-                        <Friend
-                          key={f.friendId}
-                          friendId={f.friendId}
-                          friendName={f.friendName}
-                          friendProfileImages={f.friendProfileImages}
-                          friendStatus={f.status}
-                        />
-                      );
-                    }
-                  }
-                )}
+                <FriendsMap friends={friends} status="req_out" />
+                <FriendsMap friends={friends} status="req_in" />
+                <FriendsMap friends={friends} status="friends" />
               </Stack>
             </Card>
           )}
         </>
       )}
     </Box>
+  );
+};
+
+type friendDisplay = {
+  friendId: string;
+  friendName: string;
+  friendProfileImages: {
+    url: string;
+    height: number;
+    width: number;
+  }[];
+  status: string;
+};
+
+const FriendsMap: React.FC<{
+  friends: friendDisplay[];
+  status: string;
+}> = (props) => {
+  const { friends, status } = props;
+  let msg;
+  switch (status) {
+    case "req_out":
+      msg = "Outgoing Requests";
+      break;
+    case "req_in":
+      msg = "Incoming Requests";
+      break;
+    case "friends":
+      msg = "Friends";
+      break;
+  }
+
+  const [visible, setVisible] = React.useState(true);
+
+  return (
+    <>
+      {friends.some((f: friendDisplay) => f.status === status) && (
+        <>
+          <Stack direction="row" sx={{ alignItems: "center", mt: "0.5rem" }}>
+            <Button onClick={() => setVisible(!visible)}>
+              <Typography variant="body2" sx={{ color: "gray" }}>
+                {msg}
+              </Typography>
+
+              {visible ? (
+                <KeyboardArrowDownIcon sx={{ color: "gray", ml: "0.5rem" }} />
+              ) : (
+                <KeyboardControlKeyIcon sx={{ color: "gray", ml: "0.5rem" }} />
+              )}
+            </Button>
+          </Stack>
+          {visible &&
+            friends.map((f: friendDisplay) => {
+              if (f.status === status) {
+                return (
+                  <Friend
+                    key={f.friendId}
+                    friendId={f.friendId}
+                    friendName={f.friendName}
+                    friendProfileImages={f.friendProfileImages}
+                    friendStatus={f.status}
+                  />
+                );
+              }
+            })}
+        </>
+      )}
+    </>
   );
 };
 

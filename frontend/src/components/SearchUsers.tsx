@@ -47,8 +47,8 @@ const SearchUsers = forwardRef((props: SearchUsersProps, ref) => {
       id="user-autocomplete"
       sx={{
         borderRadius: "0.25rem",
-        backgroundColor: "white",
-        color: "black",
+        backgroundColor: "#2B2B2B",
+        color: "#47a661",
         width: "100%",
       }}
       options={options}
@@ -62,9 +62,32 @@ const SearchUsers = forwardRef((props: SearchUsersProps, ref) => {
       renderInput={(params) => (
         <TextField
           {...params}
+          variant="outlined"
           size={textFieldSize}
           label={label}
-          sx={{ width: "100%" }}
+          sx={{
+            width: "100%",
+            color: "#47a661",
+            borderRadius: "0.25rem",
+            backgroundColor: "#2B2B2B",
+            "& label": {
+              color: "#47a661",
+            },
+            "& label.Mui-focused": {
+              color: "#47a661",
+            },
+            "& .MuiOutlinedInput-root": {
+              // "& fieldset": {
+              //   borderColor: "#47a661",
+              // },
+              "&:hover fieldset": {
+                borderColor: "#47a661",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#47a661",
+              },
+            },
+          }}
         />
       )}
     />

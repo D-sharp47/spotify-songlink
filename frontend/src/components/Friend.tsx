@@ -22,7 +22,7 @@ export interface FriendProps {
 
 const actionDict: { [key: string]: string } = {
   req_out: "Unsend",
-  req_in: "Delete",
+  req_in: "Decline",
   friends: "Remove",
 };
 
@@ -76,13 +76,6 @@ const Friend: React.FC<FriendProps> = (props) => {
             </Stack>
           </Stack>
           <Stack direction="row" spacing={2}>
-            {friendStatus === "req_out" && (
-              <div>
-                <Typography variant="body1" sx={{ color: "gray", mr: "1rem" }}>
-                  Pending
-                </Typography>
-              </div>
-            )}
             {friendStatus === "req_in" && (
               <Button
                 variant="contained"
