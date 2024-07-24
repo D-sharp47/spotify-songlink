@@ -73,6 +73,7 @@ export const updateSongs = async (req, res, groupToUpdate) => {
           );
 
           const userGroups = groupToUpdate ? [groupToUpdate] : user.groups;
+          console.log("\nUser Groups: ", userGroups);
 
           await Promise.all(
             userGroups.map(async (group) => {

@@ -91,7 +91,11 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
           }}
         />
         <Stack direction="row" alignItems="center">
-          <SearchUsers label="Group Members" ref={searchUsersRef} />
+          <SearchUsers
+            label="Group Members"
+            textFieldSize="medium"
+            ref={searchUsersRef}
+          />
           <Button
             variant="contained"
             size="large"

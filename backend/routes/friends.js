@@ -1,6 +1,5 @@
 import express from "express";
 import User from "../models/User.js";
-// import { ensureAuthenticated } from "./auth.js";
 
 const router = express.Router();
 
@@ -58,8 +57,18 @@ const modifyFriend = async (req, res, friendId, action) => {
           return res.status(400).json({ error: "Friend already added" });
         }
 
-        user.friends.push({ friendId: friend._id, status: "req_out" });
-        friend.friends.push({ friendId: user._id, status: "req_in" });
+        user.friends.push({
+          friendId: friend._id,
+          friendName: friend._json.display_name ?? "No Display Name",
+          friendProfileImages: friend._json.images,
+          status: "req_out",
+        });
+        friend.friends.push({
+          friendId: user._id,
+          friendName: user._json.display_name,
+          friendProfileImages: user._json.images,
+          status: "req_in",
+        });
       }
 
       if (action === "accept") {

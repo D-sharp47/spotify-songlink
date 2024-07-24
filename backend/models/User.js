@@ -58,6 +58,18 @@ const UserSchema = new Schema({
           type: String,
           required: true,
         },
+        friendName: {
+          type: String,
+          required: true,
+        },
+        friendProfileImages: {
+          type: [
+            {
+              type: Schema.Types.Mixed,
+            },
+          ],
+          required: false,
+        },
         status: {
           type: String,
           enum: ["req_out", "req_in", "friends"],

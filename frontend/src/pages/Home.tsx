@@ -125,7 +125,19 @@ const HomePage: React.FC = () => {
     <Welcome />
   );
 
-  return <>{content}</>;
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+      }}
+    >
+      {content}
+    </Box>
+  );
 };
 
 export default HomePage;

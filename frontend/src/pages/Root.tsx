@@ -66,9 +66,7 @@ const RootLayout: React.FC = () => {
         style={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
+          minHeight: "calc(100vh - 64px)",
           backgroundImage: `url(${bgImage})`,
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",

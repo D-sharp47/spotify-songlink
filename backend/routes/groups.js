@@ -97,7 +97,7 @@ const createGroup = async (req, res) => {
       await user.save();
     }
 
-    await updateSongs(accessToken, userId, groupId);
+    await updateSongs(req, res, groupId);
 
     const notifyClients = req.app.get("notifyClients");
     const userIds = members

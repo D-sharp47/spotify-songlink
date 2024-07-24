@@ -5,10 +5,11 @@ import { searchUsers } from "../util/api";
 
 interface SearchUsersProps {
   label: string;
+  textFieldSize?: "small" | "medium";
 }
 
 const SearchUsers = forwardRef((props: SearchUsersProps, ref) => {
-  const label = props.label;
+  const { label, textFieldSize } = props;
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState([]);
 
@@ -58,7 +59,14 @@ const SearchUsers = forwardRef((props: SearchUsersProps, ref) => {
       value={inputValue}
       onChange={(_event, newValue) => setInputValue(newValue ?? "")}
       onInputChange={(_event, newInputValue) => setInputValue(newInputValue)}
-      renderInput={(params) => <TextField {...params} label={label} />}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          size={textFieldSize}
+          label={label}
+          sx={{ width: "100%" }}
+        />
+      )}
     />
   );
 });

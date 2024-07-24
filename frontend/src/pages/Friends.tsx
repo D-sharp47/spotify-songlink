@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { Button, Stack } from "@mui/material";
+import { Box, Button, Card, Grid, Stack, Typography } from "@mui/material";
 import Friend from "../components/Friend";
 import SearchUsers from "../components/SearchUsers";
 import { addFriend, getFriends } from "../util/api";
@@ -41,46 +41,173 @@ const FriendsPage: React.FC = () => {
   };
 
   return (
-    <>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+      }}
+    >
       {loadingFriends ? (
         <p style={{ textAlign: "center", color: "white" }}>
           Loading Friends...
         </p>
       ) : (
         <>
-          <h1 style={{ color: "white" }}>{userID}: Friends</h1>
-          <ul>
-            {friends.map((f: { friendId: string; status: string }) => (
-              <Friend key={f.friendId} id={f.friendId} status={f.status} />
-            ))}
-          </ul>
+          <Stack direction="row" sx={{ alignItems: "center", mb: "1.5rem" }}>
+            <Typography sx={{ color: "#47a661", mr: "1rem", flex: "none" }}>
+              {userID}: Friends
+            </Typography>
+            <Button
+              variant="contained"
+              size="medium"
+              sx={{
+                backgroundColor: "#47a661",
+                "&:hover": {
+                  backgroundColor: "#367a4e",
+                },
+                color: "white",
+                mr: "1rem",
+                flex: "none",
+              }}
+            >
+              Requests
+            </Button>
+            <div style={{ width: "20rem" }}>
+              <SearchUsers
+                label="Search Users"
+                textFieldSize="small"
+                ref={searchUsersRef}
+              />
+            </div>
+            <Button
+              variant="contained"
+              size="medium"
+              onClick={handleFormSubmit}
+              sx={{
+                ml: "1rem",
+                backgroundColor: "#47a661",
+                "&:hover": {
+                  backgroundColor: "#367a4e",
+                },
+                color: "white",
+              }}
+            >
+              Add
+            </Button>
+          </Stack>
+          {friends?.length > 0 && (
+            <Card
+              sx={{
+                backgroundColor: "#2B2B2B",
+                width: "40rem",
+                p: "1rem",
+                justifyContent: "center",
+              }}
+            >
+              <Stack direction="column" spacing={2}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "gray", ml: "0.5rem", mt: "0.5rem" }}
+                >
+                  Incoming Requests
+                </Typography>
+                {friends.map(
+                  (f: {
+                    friendId: string;
+                    friendName: string;
+                    friendProfileImages: {
+                      url: string;
+                      height: number;
+                      width: number;
+                    }[];
+                    status: string;
+                  }) => {
+                    if (f.status === "req_in") {
+                      return (
+                        <Friend
+                          key={f.friendId}
+                          friendId={f.friendId}
+                          friendName={f.friendName}
+                          friendProfileImages={f.friendProfileImages}
+                          friendStatus={f.status}
+                        />
+                      );
+                    }
+                  }
+                )}
+
+                <Typography
+                  variant="body2"
+                  sx={{ color: "gray", ml: "0.5rem", mt: "0.5rem" }}
+                >
+                  Outgoing Requests
+                </Typography>
+
+                {friends.map(
+                  (f: {
+                    friendId: string;
+                    friendName: string;
+                    friendProfileImages: {
+                      url: string;
+                      height: number;
+                      width: number;
+                    }[];
+                    status: string;
+                  }) => {
+                    if (f.status === "req_out") {
+                      return (
+                        <Friend
+                          key={f.friendId}
+                          friendId={f.friendId}
+                          friendName={f.friendName}
+                          friendProfileImages={f.friendProfileImages}
+                          friendStatus={f.status}
+                        />
+                      );
+                    }
+                  }
+                )}
+
+                <Typography
+                  variant="body2"
+                  sx={{ color: "gray", ml: "0.5rem", mt: "0.5rem" }}
+                >
+                  Friends
+                </Typography>
+
+                {friends.map(
+                  (f: {
+                    friendId: string;
+                    friendName: string;
+                    friendProfileImages: {
+                      url: string;
+                      height: number;
+                      width: number;
+                    }[];
+                    status: string;
+                  }) => {
+                    if (f.status === "friends") {
+                      return (
+                        <Friend
+                          key={f.friendId}
+                          friendId={f.friendId}
+                          friendName={f.friendName}
+                          friendProfileImages={f.friendProfileImages}
+                          friendStatus={f.status}
+                        />
+                      );
+                    }
+                  }
+                )}
+              </Stack>
+            </Card>
+          )}
         </>
       )}
-      <h1 style={{ color: "white" }}>{userID}: Add Friends</h1>
-      <Stack
-        direction="row"
-        alignItems="center"
-        style={{ marginBottom: "20px" }}
-      >
-        <SearchUsers label="Search Users" ref={searchUsersRef} />
-        <Button
-          variant="contained"
-          size="large"
-          onClick={handleFormSubmit}
-          sx={{
-            my: "1rem",
-            ml: "1rem",
-            backgroundColor: "#47a661",
-            "&:hover": {
-              backgroundColor: "#367a4e", // Your custom color for hover state
-            },
-            color: "white",
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
-    </>
+    </Box>
   );
 };
 
