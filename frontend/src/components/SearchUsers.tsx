@@ -1,7 +1,14 @@
-import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import {
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+  useCallback,
+} from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { searchUsers } from "../util/api";
+import { Paper } from "@mui/material";
 
 interface SearchUsersProps {
   label: string;
@@ -13,34 +20,53 @@ const SearchUsers = forwardRef((props: SearchUsersProps, ref) => {
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState([]);
 
-  useEffect(() => {
-    // Fetch user data from the API
-    const fetchUsers = async () => {
-      try {
-        const response = await searchUsers(inputValue);
-        setOptions(response?.data ?? []);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-
-    // Fetch users when inputValue changes
-    if (inputValue) {
-      fetchUsers();
-    } else {
+  const fetchUsers = useCallback(async (query: string) => {
+    if (!query) {
       setOptions([]);
+      return;
     }
-  }, [inputValue]);
+
+    try {
+      const response = await searchUsers(query);
+      setOptions(response?.data ?? []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchUsers(inputValue);
+    }, 1000);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [inputValue, fetchUsers]);
 
   const getSelectedUser = () => inputValue;
 
   const clearInput = () => setInputValue("");
 
-  // Expose functions to the parent component using useImperativeHandle
   useImperativeHandle(ref, () => ({
     getSelectedUser,
     clearInput,
   }));
+
+  const CustomPaper = (props: React.ComponentProps<typeof Paper>) => (
+    <Paper
+      {...props}
+      sx={{
+        backgroundColor: "#2B2B2B",
+        color: "#47a661",
+        border: "1px solid #47a661",
+      }}
+    />
+  );
+
+  const CustomListbox = (props: React.HTMLAttributes<HTMLElement>) => (
+    <ul {...props} style={{ backgroundColor: "#2B2B2B", color: "#47a661" }} />
+  );
 
   return (
     <Autocomplete
@@ -56,6 +82,8 @@ const SearchUsers = forwardRef((props: SearchUsersProps, ref) => {
       autoComplete
       includeInputInList
       filterSelectedOptions
+      PaperComponent={CustomPaper}
+      ListboxComponent={CustomListbox}
       value={inputValue}
       onChange={(_event, newValue) => setInputValue(newValue ?? "")}
       onInputChange={(_event, newInputValue) => setInputValue(newInputValue)}
@@ -67,7 +95,7 @@ const SearchUsers = forwardRef((props: SearchUsersProps, ref) => {
           label={label}
           sx={{
             width: "100%",
-            color: "#47a661",
+            input: { color: "#47a661" },
             borderRadius: "0.25rem",
             backgroundColor: "#2B2B2B",
             "& label": {
@@ -76,10 +104,8 @@ const SearchUsers = forwardRef((props: SearchUsersProps, ref) => {
             "& label.Mui-focused": {
               color: "#47a661",
             },
+
             "& .MuiOutlinedInput-root": {
-              // "& fieldset": {
-              //   borderColor: "#47a661",
-              // },
               "&:hover fieldset": {
                 borderColor: "#47a661",
               },

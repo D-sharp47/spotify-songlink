@@ -9,6 +9,7 @@ import { addFriend, getFriends } from "../util/api";
 import { StoreType } from "../util/types";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardControlKeyIcon from "@mui/icons-material/KeyboardControlKey";
+import PeopleIcon from "@mui/icons-material/People";
 
 const FriendsPage: React.FC = () => {
   const userID = useSelector((state: StoreType) => state.auth.user._id);
@@ -62,9 +63,10 @@ const FriendsPage: React.FC = () => {
             direction="row"
             sx={{ alignItems: "center", mb: "1.5rem", width: "50%" }}
           >
-            <Typography sx={{ color: "#47a661", mr: "1rem", flex: "none" }}>
-              {userID}: Friends
+            <Typography sx={{ color: "#47a661", mr: "0.5rem", flex: "none" }}>
+              Friends
             </Typography>
+            <PeopleIcon sx={{ color: "#47a661", mr: "1rem" }} />
 
             <div style={{ flex: 1 }}>
               <SearchUsers

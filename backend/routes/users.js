@@ -14,15 +14,26 @@ router.get("/", async (req, res) => {
 router.get("/search", async (req, res) => {
   try {
     const { searchTerm } = req.query;
-    const users = await User.find({}, "_id");
+    const users = await User.find({}, "_id _json.display_name");
     const currentUserID = req.headers.userid;
-    let userIds = users.map((user) => user._id);
-    userIds = userIds.filter((userId) => userId !== currentUserID);
+    const user = await User.findOne({ _id: currentUserID }).lean();
+    let userIdsAndNames = users
+      .filter(
+        (u) =>
+          u._id !== currentUserID &&
+          !user?.friends.some((f) => f.friendId === u._id)
+      )
+      .map((user) => ({ id: user._id, name: user._json.display_name }));
 
     if (searchTerm) {
-      const filteredUserIds = userIds.filter((userId) =>
-        userId.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const filteredUserIds = userIdsAndNames
+        .filter((u) => {
+          return (
+            u.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            u.name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        })
+        .map((u) => u.id);
       res.json(filteredUserIds);
     } else {
       res.json(userIds);

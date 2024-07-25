@@ -7,14 +7,6 @@ import { AxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteGroup } from "../util/api";
 
-export interface GroupProps {
-  readonly _id: string;
-  readonly name: string;
-  readonly members: object[];
-  readonly playlists: object[];
-  readonly settings: object;
-}
-
 const GroupCard: React.FC<GroupProps> = (props) => {
   const queryClient = useQueryClient();
 
