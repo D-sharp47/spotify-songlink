@@ -115,7 +115,7 @@ const FriendsPage: React.FC = () => {
   );
 };
 
-type friendDisplay = {
+export type friendDisplay = {
   friendId: string;
   friendName: string;
   friendProfileImages: {

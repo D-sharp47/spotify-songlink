@@ -6,8 +6,9 @@ import { setToken } from "../util/auth";
 import { setCurrentUser } from "../store/authSlice";
 import { fetchTopSongs } from "../util/api";
 import { useQuery } from "@tanstack/react-query";
-import { Box, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Tab, Tabs } from "@mui/material";
 import { StoreType } from "../util/types";
+import Loading from "../components/Loading";
 
 const HomePage: React.FC = () => {
   const isLoggedIn = useSelector(
@@ -61,9 +62,7 @@ const HomePage: React.FC = () => {
   const content = isLoggedIn ? (
     <>
       {loadingTopSongs ? (
-        <Typography variant="h1" sx={{ color: "white" }}>
-          Loading top songs...
-        </Typography>
+        <Loading fontSize="25em" />
       ) : (
         <>
           {topSongs && (

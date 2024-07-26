@@ -45,7 +45,15 @@ const GroupDetailPage: React.FC = () => {
   return loadingGroup ? (
     <p style={{ textAlign: "center", color: "white" }}>Loading Group...</p>
   ) : (
-    <>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+      }}
+    >
       <h1 style={{ color: "white" }}>Group Name: {group.name}</h1>
       {playlistsCreated > 0 && (
         <>
@@ -138,7 +146,7 @@ const GroupDetailPage: React.FC = () => {
           )}
         </div>
       </Stack>
-    </>
+    </Box>
   );
 };
 

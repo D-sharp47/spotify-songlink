@@ -7,17 +7,16 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
-  Box,
-  IconButton,
   DialogActions,
+  Typography,
+  Card,
 } from "@mui/material";
 import { useSelector } from "react-redux";
-import React, { useState, useRef } from "react";
-import SearchUsers from "./SearchUsers";
-import ClearIcon from "@mui/icons-material/Clear";
-import { useQueryClient } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { StoreType } from "../util/types";
-import { createGroup } from "../util/api";
+import { createGroup, getFriends } from "../util/api";
+import { friendDisplay } from "../pages/Friends";
 
 interface CreateGroupModalContentProps {
   toggleGroupModal: () => void;
@@ -28,24 +27,28 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
 ) => {
   const playlistTypes = ["Short Term", "Medium Term", "Long Term"];
   const userId = useSelector((state: StoreType) => state.auth.user._id);
+  const isLoggedIn = useSelector(
+    (state: StoreType) => state.auth.isAuthenticated
+  );
   const [groupName, setGroupName] = useState("");
   const [groupNameError, setGroupNameError] = useState(false);
   const [groupMembers, setGroupMembers] = useState<string[]>([userId]);
   const [playlists, setPlaylists] = useState<string[]>(playlistTypes);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const searchUsersRef = useRef<any>(null);
   const queryClient = useQueryClient();
 
-  const handleAddMember = () => {
-    const selectedUser = searchUsersRef.current.getSelectedUser();
-    if (selectedUser) {
-      setGroupMembers([...groupMembers, selectedUser]);
-      searchUsersRef.current && searchUsersRef.current.clearInput();
-    }
-  };
+  const { data: friends, isLoading: loadingFriends } = useQuery({
+    queryKey: ["friends"],
+    queryFn: getFriends,
+    enabled: isLoggedIn && !!userId,
+    staleTime: 30 * 60 * 1000,
+  });
 
-  const handleMemberDelete = (member: string) => {
-    setGroupMembers(groupMembers.filter((m) => m !== member));
+  const toggleMember = (member: string) => {
+    if (groupMembers.includes(member)) {
+      setGroupMembers(groupMembers.filter((m) => m !== member));
+    } else {
+      setGroupMembers([...groupMembers, member]);
+    }
   };
 
   const handleCheckboxChange = (playlist: string) => {
@@ -90,67 +93,77 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
             setGroupName(e.target.value);
           }}
         />
-        <Stack direction="row" alignItems="center">
-          <SearchUsers
-            label="Group Members"
-            textFieldSize="medium"
-            ref={searchUsersRef}
-          />
-          <Button
-            variant="contained"
-            size="large"
-            onClick={handleAddMember}
-            sx={{
-              my: "1rem",
-              ml: "1rem",
-              width: "6.5rem",
-              backgroundColor: "#47a661",
-              "&:hover": {
-                backgroundColor: "#367a4e",
-              },
-              color: "white",
-            }}
-          >
-            Add
-          </Button>
-        </Stack>
-        <Stack direction="row" spacing={1} sx={{ mb: "1.5rem" }}>
-          {groupMembers.map((member) => (
-            <Box
-              key={member}
-              sx={{
-                mt: "1rem",
-                border: "1px solid #47a661",
-                backgroundColor: "#f0f8f2",
-                paddingX: "0.5rem",
-                height: "40px",
-                display: "flex",
-                alignItems: "center",
-                borderRadius: "1rem",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {member}
-              {member !== userId && (
-                <IconButton
-                  aria-label="delete"
-                  size="small"
-                  onClick={() => handleMemberDelete(member)}
+        {!loadingFriends &&
+          friends.some((f: friendDisplay) => f.status === "friends") && (
+            <>
+              <FormControl component="fieldset">
+                <FormLabel
+                  component="legend"
                   sx={{
-                    top: 0,
-                    right: 0,
-                    ml: "0.5rem",
-                    "&:hover": {
-                      background: "#73cc86",
+                    fontSize: "1.5em",
+                    marginBottom: "1rem",
+                    "&.Mui-focused": {
+                      color: "rgb(0 0 0 / 75%)",
                     },
                   }}
                 >
-                  <ClearIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Box>
-          ))}
-        </Stack>
+                  Add Group Members
+                </FormLabel>
+                <Card
+                  sx={{
+                    padding: "0 1rem 1rem 1rem",
+                    marginBottom: "1rem",
+                    border: "1px solid #c4c4c4",
+                    boxShadow: "none",
+                    maxHeight: "178px",
+                    overflowY: "auto",
+                  }}
+                >
+                  <FormGroup aria-label="position" sx={{ width: "100%" }}>
+                    {friends.map((f: friendDisplay) => {
+                      if (f.status === "friends") {
+                        return (
+                          <FormControlLabel
+                            key={f.friendId}
+                            sx={{ mt: "1rem" }}
+                            control={
+                              <Checkbox
+                                defaultChecked
+                                sx={{
+                                  "&.Mui-checked": { color: "#47a661" },
+                                }}
+                                onChange={() => {
+                                  toggleMember(f.friendId);
+                                }}
+                              />
+                            }
+                            label={
+                              <Stack
+                                direction="column"
+                                spacing={0}
+                                key={f.friendId}
+                              >
+                                <Typography variant="body1" sx={{ mr: "1rem" }}>
+                                  {f.friendName}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "gray", ml: "0.5rem" }}
+                                >
+                                  @{f.friendId}
+                                </Typography>
+                              </Stack>
+                            }
+                          />
+                        );
+                      }
+                    })}
+                  </FormGroup>
+                </Card>
+              </FormControl>
+            </>
+          )}
+
         <FormControl component="fieldset">
           <FormLabel
             component="legend"
