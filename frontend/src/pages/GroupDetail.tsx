@@ -149,7 +149,7 @@ const GroupDetailPage: React.FC = () => {
                 <p
                   style={{
                     color: member.userId === userId ? "#47a661" : "white",
-                  }}
+                  }} // for test commit
                 >
                   {member.userId} - {member.status}
                 </p>
