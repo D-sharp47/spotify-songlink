@@ -36,6 +36,8 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
   const [playlists, setPlaylists] = useState<string[]>(playlistTypes);
   const queryClient = useQueryClient();
 
+  console.log("Group Members: ", groupMembers);
+
   const { data: friends, isLoading: loadingFriends } = useQuery({
     queryKey: ["friends"],
     queryFn: getFriends,
@@ -67,13 +69,14 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
     }
 
     try {
+      props.toggleGroupModal();
       const response = await createGroup(groupName, groupMembers, playlists);
 
       if (response && response.status < 300) {
         queryClient.invalidateQueries({ queryKey: ["groups"] });
-        props.toggleGroupModal();
       }
     } catch (err) {
+      alert("Error creating group");
       console.log(err);
     }
   };
@@ -128,7 +131,6 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
                             sx={{ mt: "1rem" }}
                             control={
                               <Checkbox
-                                defaultChecked
                                 sx={{
                                   "&.Mui-checked": { color: "#47a661" },
                                 }}

@@ -1,7 +1,7 @@
 import express from "express";
 import User from "../models/User.js";
 import Group from "../models/Group.js";
-import { updateSongs } from "./routine.js";
+import { groupInit } from "./routine.js";
 
 const router = express.Router();
 
@@ -60,7 +60,6 @@ const getGroups = async (req, res) => {
 
 const createGroup = async (req, res) => {
   try {
-    const accessToken = req.headers.authorization;
     const userId = req.headers.userid;
     const groupName = req.body.name;
     const members = req.body.members.map((member) => {
@@ -97,7 +96,7 @@ const createGroup = async (req, res) => {
       await user.save();
     }
 
-    await updateSongs(req, res, groupId);
+    await groupInit(groupId);
 
     const notifyClients = req.app.get("notifyClients");
     const userIds = members

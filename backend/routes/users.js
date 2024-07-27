@@ -190,20 +190,21 @@ export const createUserDataPlaylist = async (
       return null;
     }
 
-    axios.delete(
-      `https://api.spotify.com/v1/playlists/${playlistId}/followers`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    unfollowPlaylist(token, playlistId);
 
     return playlistId;
   } catch (error) {
     console.error("Error creating playlist:", error);
     return null;
   }
+};
+
+export const unfollowPlaylist = async (token, playlistId) => {
+  axios.delete(`https://api.spotify.com/v1/playlists/${playlistId}/followers`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 const getAllTrackUrisFromPlaylist = async (token, playlistId) => {

@@ -142,6 +142,23 @@ const UserSchema = new Schema({
     },
     required: false,
   },
+  settings: {
+    type: {
+      autoUnfollowPlaylistsOnCreate: {
+        type: Boolean,
+        required: true,
+      },
+      autoUnfollowPlaylistsOnLeave: {
+        type: Boolean,
+        required: true,
+      },
+    },
+    required: true,
+    default: {
+      autoUnfollowPlaylistsOnCreate: true,
+      autoUnfollowPlaylistsOnLeave: false,
+    },
+  },
 });
 
 const User = mongoose.model("users", UserSchema);

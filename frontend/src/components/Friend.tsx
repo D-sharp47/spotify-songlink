@@ -59,7 +59,12 @@ const Friend: React.FC<FriendProps> = (props) => {
           }}
         >
           <Stack direction="row" spacing={2}>
-            <IconButton onClick={() => {}} sx={{ p: 0 }}>
+            <IconButton
+              onClick={() => {
+                //Want to eventually add stuff here, maybe show bigger profile image
+              }}
+              sx={{ p: 0 }}
+            >
               <Avatar src={friendProfileImages[0]?.url}>
                 {friendProfileImages[0]
                   ? ""

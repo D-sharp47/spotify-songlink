@@ -4,25 +4,21 @@ import User from "../models/User.js";
 import Group from "../models/Group.js";
 import {
   removeTracksFromPlaylist,
+  unfollowPlaylist,
   setUserDataPlaylist,
   spotifyTracks,
 } from "./users.js";
 
 const router = express.Router();
 
-router.post("/updateSongs", (req, res) => updateSongs(req, res, null));
+router.post("/updateSongs", (req, res) => updateSongs(req, res));
 
-export const updateSongs = async (req, res, groupToUpdate) => {
+export const updateSongs = async (req, res) => {
   try {
-    const users = groupToUpdate
-      ? await User.find(
-          { groups: { $elemMatch: { id: { $in: groupToUpdate } } } },
-          "_id refreshToken groups"
-        )
-      : await User.find(
-          { groups: { $exists: true, $not: { $size: 0 } } },
-          "_id refreshToken groups"
-        );
+    const users = await User.find(
+      { groups: { $exists: true, $not: { $size: 0 } } },
+      "_id refreshToken groups settings"
+    );
 
     const refreshedUsers = await Promise.all(
       users.map(async (user) => {
@@ -72,13 +68,10 @@ export const updateSongs = async (req, res, groupToUpdate) => {
             true
           );
 
-          const userGroups = groupToUpdate ? [groupToUpdate] : user.groups;
-          console.log("\nUser Groups: ", userGroups);
-
           await Promise.all(
-            userGroups.map(async (group) => {
+            user.groups.map(async (group) => {
               try {
-                const groupDoc = await Group.findById(group.id);
+                let groupDoc = await Group.findById(group.id);
                 if (!groupDoc) {
                   throw new Error(`Group not found with id ${group.id}`);
                 }
@@ -100,8 +93,8 @@ export const updateSongs = async (req, res, groupToUpdate) => {
                   const userContribution = playlist.contributions.find(
                     (contribution) => contribution.userId === user._id
                   );
-
                   if (!playlist.created) {
+                    console.log("Creating playlist");
                     const { playlist_id, snapshot_id } = await createPlaylist(
                       creatorAccessToken,
                       groupDoc.creatorId,
@@ -111,30 +104,38 @@ export const updateSongs = async (req, res, groupToUpdate) => {
                     playlist.playlistId = playlist_id;
                     playlist.snapshotId = snapshot_id;
                     playlist.created = true;
+                    if (
+                      user._id === creator._id &&
+                      user.settings.autoUnfollowPlaylistsOnCreate
+                    ) {
+                      unfollowPlaylist(accessToken, playlist_id);
+                    }
                   }
 
                   const isFollowing = playlist.followers.includes(user._id);
                   if (user._id !== creator._id && !isFollowing) {
-                    await axios.put(
-                      `https://api.spotify.com/v1/playlists/${playlist.playlistId}/followers`,
-                      {
-                        public: true,
-                      },
-                      {
-                        headers: {
-                          Authorization: `Bearer ${accessToken}`,
-                          "Content-Type": "application/json",
+                    if (!user.settings.autoUnfollowPlaylistsOnCreate) {
+                      await axios.put(
+                        `https://api.spotify.com/v1/playlists/${playlist.playlistId}/followers`,
+                        {
+                          public: true,
                         },
-                      }
-                    );
-                    playlist.followers.push(user._id);
-                    console.log(
-                      user._id,
-                      " followed ",
-                      groupDoc.name,
-                      " playlist ",
-                      playlist.name
-                    );
+                        {
+                          headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                            "Content-Type": "application/json",
+                          },
+                        }
+                      );
+                      playlist.followers.push(user._id);
+                      console.log(
+                        user._id,
+                        " followed ",
+                        groupDoc.name,
+                        " playlist ",
+                        playlist.name
+                      );
+                    }
                   }
 
                   if (
@@ -191,27 +192,11 @@ export const updateSongs = async (req, res, groupToUpdate) => {
                     );
                   }
                 }
-
-                const MAX_RETRIES = 3;
-                const RETRY_DELAY_MS = 1000; // 1 second delay between retries
-                let retryCount = 0;
-
-                while (retryCount < MAX_RETRIES) {
-                  try {
-                    await groupDoc.save();
-                    break;
-                  } catch (error) {
-                    retryCount++;
-                    if (retryCount < MAX_RETRIES) {
-                      console.log(
-                        `Retrying operation (attempt ${retryCount})...`
-                      );
-                      await new Promise((resolve) =>
-                        setTimeout(resolve, RETRY_DELAY_MS)
-                      );
-                    }
-                  }
-                }
+                groupDoc = await Group.findOneAndUpdate(
+                  { _id: groupDoc._id },
+                  { $set: groupDoc },
+                  { new: true, runValidators: true }
+                );
               } catch (error) {
                 console.error(
                   `Error updating group ${group.id} for user ${user._id}:`,
@@ -233,7 +218,6 @@ export const updateSongs = async (req, res, groupToUpdate) => {
         }
       })
     );
-
     res.json(refreshedUsers.filter((user) => user !== null));
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -313,7 +297,7 @@ export const addTracksToPlaylist = async (accessToken, playlistId, tracks) => {
       }
     );
   } catch (error) {
-    // console.error("Error adding tracks to playlist:", error);
+    console.error("Error adding tracks to playlist:", error);
   }
 };
 
@@ -333,6 +317,100 @@ const getTracksByPlaylistName = (
       return longTerm.slice(0, limit);
     default:
       return [];
+  }
+};
+
+export const groupInit = async (groupId) => {
+  try {
+    const group = await Group.findById(groupId);
+    if (!group) {
+      throw new Error(`Group not found with id ${groupId}`);
+    }
+
+    const creator = await User.findById(group.creatorId);
+    const creatorAccessToken = await getAccessTokenFromRefresh(
+      creator.refreshToken
+    );
+    if (!creatorAccessToken) {
+      throw new Error(
+        `Unable to refresh access token for creator ${creator._id}`
+      );
+    }
+
+    const playlistNameToTermMap = {
+      "Short Term": "short_term",
+      "Medium Term": "medium_term",
+      "Long Term": "long_term",
+    };
+
+    await Promise.all(
+      group.playlists.map(async (playlist, index) => {
+        if (!playlist.created) {
+          const { playlist_id, snapshot_id } = await createPlaylist(
+            creatorAccessToken,
+            group.creatorId,
+            `${group.name} - ${playlist.name}`
+          );
+
+          playlist.playlistId = playlist_id;
+          playlist.snapshotId = snapshot_id;
+          playlist.created = true;
+        }
+      })
+    );
+
+    await Promise.all(
+      group.members.map(async (member) => {
+        const user = await User.findById(member.userId);
+        if (!user) {
+          throw new Error(`User not found with id ${member.userId}`);
+        }
+
+        const accessToken = await getAccessTokenFromRefresh(user.refreshToken);
+        if (!accessToken) {
+          throw new Error(
+            `Unable to refresh access token for user ${user._id}`
+          );
+        }
+
+        await Promise.all(
+          group.playlists.map(async (playlist) => {
+            const term = playlistNameToTermMap[playlist.name];
+            const topTracks = (
+              await spotifyTracks(`Bearer ${accessToken}`, term)
+            ).slice(0, group.settings.songsPerMember);
+
+            await addTracksToPlaylist(
+              accessToken,
+              playlist.playlistId,
+              topTracks
+            );
+
+            const contribution = playlist.contributions.find(
+              (contribution) =>
+                contribution.userId.toString() === user._id.toString()
+            );
+
+            if (contribution) {
+              contribution.tracks = topTracks;
+            } else {
+              playlist.contributions.push({
+                userId: user._id,
+                tracks: topTracks,
+              });
+            }
+
+            if (user.settings.autoUnfollowPlaylistsOnCreate) {
+              await unfollowPlaylist(accessToken, playlist.playlistId);
+            }
+          })
+        );
+      })
+    );
+
+    await group.save();
+  } catch (error) {
+    console.error("Error initializing group:", error);
   }
 };
 
