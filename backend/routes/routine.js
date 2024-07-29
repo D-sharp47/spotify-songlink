@@ -106,7 +106,7 @@ export const updateSongs = async (req, res) => {
                     playlist.created = true;
                     if (
                       user._id === creator._id &&
-                      user.settings.autoUnfollowPlaylistsOnCreate
+                      !user.settings.autoFollowPlaylistsOnCreate
                     ) {
                       unfollowPlaylist(accessToken, playlist_id);
                     }
@@ -114,7 +114,7 @@ export const updateSongs = async (req, res) => {
 
                   const isFollowing = playlist.followers.includes(user._id);
                   if (user._id !== creator._id && !isFollowing) {
-                    if (!user.settings.autoUnfollowPlaylistsOnCreate) {
+                    if (user.settings.autoFollowPlaylistsOnCreate) {
                       await axios.put(
                         `https://api.spotify.com/v1/playlists/${playlist.playlistId}/followers`,
                         {
@@ -400,7 +400,7 @@ export const groupInit = async (groupId) => {
               });
             }
 
-            if (user.settings.autoUnfollowPlaylistsOnCreate) {
+            if (!user.settings.autoFollowPlaylistsOnCreate) {
               await unfollowPlaylist(accessToken, playlist.playlistId);
             }
           })

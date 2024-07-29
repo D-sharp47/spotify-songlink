@@ -19,6 +19,7 @@ import React, { useRef, useState } from "react";
 import { StoreType } from "../util/types";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
+import { updateUserSettings } from "../util/api";
 
 interface UserSettingsProps {
   toggleSettingsModal: () => void;
@@ -49,6 +50,13 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
 
   const handleSave = () => {
     props.toggleSettingsModal();
+    updateUserSettings(
+      userId,
+      selectedImage,
+      newDisplayName,
+      autoFollow,
+      autoUnfollow
+    );
   };
 
   return (

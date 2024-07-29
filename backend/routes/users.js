@@ -29,9 +29,9 @@ router.get("/preferences", async (req, res) => {
 
 router.put("/preferences", async (req, res) => {
   const userId = req.query.userId;
-  const changes = req.body;
+  const { image, display_name, settings } = req.body;
 
-  if (!changes.image && !changes.display_name && !changes.settings) {
+  if (!image && !display_name && !settings) {
     return res.status(400).json({ message: "No valid changes provided" });
   }
 
@@ -41,26 +41,28 @@ router.put("/preferences", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    changes.image && (user._json.image = changes.image);
-    changes.display_name && (user._json.display_name = changes.display_name);
-    changes.settings && (user.settings = changes.settings);
+    // Apply changes
+    if (image) user._json.image = image;
+    if (display_name) user._json.display_name = display_name;
+    if (settings) user.settings = settings;
+
     await user.save();
 
-    if (changes.image || changes.display_name) {
-      // Updates data that friend stores per user
+    if (image || display_name) {
       await Promise.all(
         user.friends.map(async (friend) => {
           const friendUser = await User.findById(friend.friendId);
           if (friendUser) {
-            const userAsFriend = friendUser.friends.find({ friendId: userId });
+            const userAsFriend = friendUser.friends.find(
+              (f) => f.friendId === userId
+            );
             if (userAsFriend) {
-              changes.image && (userAsFriend.friendName = changes.display_name);
-              changes.display_name &&
-                (userAsFriend.friendName = changes.display_name);
+              if (image) userAsFriend.friendProfileImage = image;
+              if (display_name) userAsFriend.friendName = display_name;
+              await friendUser.save();
             } else {
               console.error("User not found as friend:", userId);
             }
-            await friendUser.save();
           } else {
             console.error("Friend not found:", friend.friendId);
           }
@@ -68,7 +70,7 @@ router.put("/preferences", async (req, res) => {
       );
     }
 
-    return res.json(user.settings);
+    return res.status(200).json({ message: "Preferences updated" });
   } catch (error) {
     console.error("Error updating preferences:", error);
     res.status(500).json({ message: "Error updating preferences" });

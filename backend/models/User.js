@@ -27,12 +27,9 @@ const UserSchema = new Schema({
       required: true,
     },
     image: {
-      type: {
-        height: Number,
-        url: String,
-        width: Number,
-      },
-      required: false,
+      height: Number,
+      url: String,
+      width: Number,
     },
     type: {
       type: String,
@@ -147,7 +144,7 @@ const UserSchema = new Schema({
   },
   settings: {
     type: {
-      autoUnfollowPlaylistsOnCreate: {
+      autoFollowPlaylistsOnCreate: {
         type: Boolean,
         required: true,
       },
@@ -158,7 +155,7 @@ const UserSchema = new Schema({
     },
     required: true,
     default: {
-      autoUnfollowPlaylistsOnCreate: true,
+      autoFollowPlaylistsOnCreate: false,
       autoUnfollowPlaylistsOnLeave: false,
     },
   },

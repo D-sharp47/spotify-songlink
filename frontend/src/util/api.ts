@@ -3,6 +3,25 @@ import { AxiosError } from "axios";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "https://songlink.co"; // Forcing for now
 
+export const updateUserSettings = async (userId: string, image: string | undefined, display_name: string, autoFollowPlaylistsOnCreate: boolean, autoUnfollowPlaylistsOnLeave: boolean) => {
+  try {
+    await axios.put(`${backendUrl}/api/users/preferences`, {
+      image,
+      display_name,
+      settings: {
+        autoFollowPlaylistsOnCreate,
+        autoUnfollowPlaylistsOnLeave
+      }
+    }, {
+      params: {
+        userId
+      }
+    });
+  } catch (error) {
+    console.error("Error updating user settings:", error);
+  }
+};
+
 export const getAllGroups = async () => {
   try {
     const response = await axios.get(`${backendUrl}/api/groups`);
