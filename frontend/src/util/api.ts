@@ -1,11 +1,25 @@
 import axios from "../util/axiosApi";
 import { AxiosError } from "axios";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "https://songlink.co"; // Forcing for now
+const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "https://songlink.co";
+
+export const getUserSettings = async (userId: string) => {
+  try {
+    const response = await axios.get(`${backendUrl}/api/users/preferences`, {
+      params: {
+        userId
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user preferences:", error);
+    return null;
+  }
+};
 
 export const updateUserSettings = async (userId: string, image: string | undefined, display_name: string, autoFollowPlaylistsOnCreate: boolean, autoUnfollowPlaylistsOnLeave: boolean) => {
   try {
-    await axios.put(`${backendUrl}/api/users/preferences`, {
+    const response = await axios.put(`${backendUrl}/api/users/preferences`, {
       image,
       display_name,
       settings: {
@@ -17,6 +31,7 @@ export const updateUserSettings = async (userId: string, image: string | undefin
         userId
       }
     });
+    return response;
   } catch (error) {
     console.error("Error updating user settings:", error);
   }

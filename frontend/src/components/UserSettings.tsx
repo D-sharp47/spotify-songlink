@@ -15,11 +15,12 @@ import {
   styled,
 } from "@mui/material";
 import { useSelector } from "react-redux";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StoreType } from "../util/types";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
-import { updateUserSettings } from "../util/api";
+import { getUserSettings, updateUserSettings } from "../util/api";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface UserSettingsProps {
   toggleSettingsModal: () => void;
@@ -40,6 +41,13 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
     console.log("User is not logged in");
   }
 
+  const { data: settings, isLoading: loadingSettings } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => getUserSettings(userId),
+    enabled: isLoggedIn && !!userId,
+    staleTime: 30 * 60 * 1000,
+  });
+
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
     iconImg?.url || undefined
   );
@@ -47,16 +55,29 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
   const [editDisplayName, setEditDisplayName] = useState(false);
   const [autoFollow, setAutoFollow] = useState(false);
   const [autoUnfollow, setAutoUnfollow] = useState(false);
+  const queryClient = useQueryClient();
 
-  const handleSave = () => {
+  useEffect(() => {
+    if (settings) {
+      // setSelectedImage(settings.image);
+      // setNewDisplayName(settings.display_name);
+      setAutoFollow(settings.autoFollowPlaylistsOnCreate);
+      setAutoUnfollow(settings.autoUnfollowPlaylistsOnLeave);
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
     props.toggleSettingsModal();
-    updateUserSettings(
+    const response = await updateUserSettings(
       userId,
-      selectedImage,
+      (selectedImage !== iconImg?.url && selectedImage) || undefined,
       newDisplayName,
       autoFollow,
       autoUnfollow
     );
+    if (response && response.status < 300) {
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+    }
   };
 
   return (
@@ -124,54 +145,70 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
             <InfoIcon sx={{ height: 15, width: 15, ml: "0.5rem" }} />
           </Tooltip>
         </Stack>
-        <Divider sx={{ my: "1rem" }} />
-        <Typography variant="h5">Groups</Typography>
-        <FormGroup>
-          <Stack
-            direction="row"
-            sx={{ width: "100%", justifyContent: "space-between", my: "1rem" }}
-          >
-            <Stack direction="row" sx={{ alignItems: "center", ml: "2rem" }}>
-              <Typography variant="h6">
-                Auto follow playlists upon joining a group.
-              </Typography>
-              <Tooltip title="Will Add playlists to your Spotify Library.">
-                <InfoIcon sx={{ height: 15, width: 15, ml: "0.5rem" }} />
-              </Tooltip>
-            </Stack>
-            <FormControlLabel
-              control={
-                <GreenSwitch
-                  checked={autoFollow}
-                  onChange={() => setAutoFollow(!autoFollow)}
+        {loadingSettings ? (
+          <></>
+        ) : (
+          <>
+            <Divider sx={{ my: "1rem" }} />
+            <Typography variant="h5">Groups</Typography>
+            <FormGroup>
+              <Stack
+                direction="row"
+                sx={{
+                  width: "100%",
+                  justifyContent: "space-between",
+                  my: "1rem",
+                }}
+              >
+                <Stack
+                  direction="row"
+                  sx={{ alignItems: "center", ml: "2rem" }}
+                >
+                  <Typography variant="h6">
+                    Auto follow playlists upon joining a group.
+                  </Typography>
+                  <Tooltip title="Will Add playlists to your Spotify Library.">
+                    <InfoIcon sx={{ height: 15, width: 15, ml: "0.5rem" }} />
+                  </Tooltip>
+                </Stack>
+                <FormControlLabel
+                  control={
+                    <GreenSwitch
+                      checked={autoFollow}
+                      onChange={() => setAutoFollow(!autoFollow)}
+                    />
+                  }
+                  label={autoFollow ? "On" : "Off"}
                 />
-              }
-              label={autoFollow ? "On" : "Off"}
-            />
-          </Stack>
-          <Stack
-            direction="row"
-            sx={{ width: "100%", justifyContent: "space-between" }}
-          >
-            <Stack direction="row" sx={{ alignItems: "center", ml: "2rem" }}>
-              <Typography variant="h6">
-                Auto unfollow playlists upon leaving a group.
-              </Typography>
-              <Tooltip title="Will Remove playlists from your Spotify Library.">
-                <InfoIcon sx={{ height: 15, width: 15, ml: "0.5rem" }} />
-              </Tooltip>
-            </Stack>
-            <FormControlLabel
-              control={
-                <GreenSwitch
-                  checked={autoUnfollow}
-                  onChange={() => setAutoUnfollow(!autoUnfollow)}
+              </Stack>
+              <Stack
+                direction="row"
+                sx={{ width: "100%", justifyContent: "space-between" }}
+              >
+                <Stack
+                  direction="row"
+                  sx={{ alignItems: "center", ml: "2rem" }}
+                >
+                  <Typography variant="h6">
+                    Auto unfollow playlists upon leaving a group.
+                  </Typography>
+                  <Tooltip title="Will Remove playlists from your Spotify Library.">
+                    <InfoIcon sx={{ height: 15, width: 15, ml: "0.5rem" }} />
+                  </Tooltip>
+                </Stack>
+                <FormControlLabel
+                  control={
+                    <GreenSwitch
+                      checked={autoUnfollow}
+                      onChange={() => setAutoUnfollow(!autoUnfollow)}
+                    />
+                  }
+                  label={autoUnfollow ? "On" : "Off"}
                 />
-              }
-              label={autoUnfollow ? "On" : "Off"}
-            />
-          </Stack>
-        </FormGroup>
+              </Stack>
+            </FormGroup>
+          </>
+        )}
       </Stack>
       <DialogActions sx={{ mt: "1rem" }}>
         <Button
