@@ -1,6 +1,7 @@
 import { useRouteError } from "react-router-dom";
 import PageContent from "../components/PageContent";
 import Header from "../components/Header";
+import React from "react";
 
 interface Error {
   status: number;
@@ -26,9 +27,15 @@ const ErrorPage: React.FC = () => {
 
   console.log(error.status);
 
+  const [showSettingsModal, setShowSettingsModal] = React.useState(false);
+
+  const toggleSettingsModal = () => {
+    setShowSettingsModal(!showSettingsModal);
+  };
+
   return (
     <>
-      <Header />
+      <Header toggleSettingsModal={toggleSettingsModal} />
       <PageContent title={title}>
         <p>{message}</p>
       </PageContent>

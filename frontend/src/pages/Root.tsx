@@ -89,9 +89,7 @@ const RootLayout: React.FC = () => {
       <Modal
         title="Settings"
         isOpen={showSettingsModal}
-        isSettingsModal
         maxWidth="md"
-        showCloseIcon
         dismissDialog={toggleSettingsModal}
         contents={<UserSettings toggleSettingsModal={toggleSettingsModal} />}
       />
