@@ -26,11 +26,14 @@ const UserSchema = new Schema({
       type: String,
       required: true,
     },
-    images: [
-      {
-        type: Schema.Types.Mixed,
+    image: {
+      type: {
+        height: Number,
+        url: String,
+        width: Number,
       },
-    ],
+      required: false,
+    },
     type: {
       type: String,
       required: true,
@@ -62,12 +65,12 @@ const UserSchema = new Schema({
           type: String,
           required: true,
         },
-        friendProfileImages: {
-          type: [
-            {
-              type: Schema.Types.Mixed,
-            },
-          ],
+        friendProfileImage: {
+          type: {
+            height: Number,
+            url: String,
+            width: Number,
+          },
           required: false,
         },
         status: {

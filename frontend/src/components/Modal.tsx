@@ -7,10 +7,12 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 export interface ModalProps {
   readonly fullWidth?: boolean;
   readonly maxWidth?: "xs" | "sm" | "md" | "lg" | "xl";
+  isSettingsModal?: boolean;
   readonly isOpen: boolean;
   readonly title: string;
   readonly showCloseIcon?: boolean;
@@ -35,7 +37,7 @@ const Modal: React.FC<ModalProps> = (props) => {
           }}
         >
           <Typography variant="h4" color="text.primary">
-            {props.title}
+            {props.isSettingsModal && <SettingsIcon />} {props.title}
           </Typography>
           {props.showCloseIcon && (
             <IconButton color="inherit" onClick={props.dismissDialog}>

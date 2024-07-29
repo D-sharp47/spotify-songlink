@@ -202,13 +202,13 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
           </FormGroup>
         </FormControl>
       </Stack>
-      <DialogActions sx={{ margin: "1rem" }}>
+      <DialogActions sx={{ mt: "1rem" }}>
         <Button
           variant="outlined"
           sx={{
-            width: { md: "4.5rem" },
+            width: { md: "6.5rem" },
             paddingLeft: "0rem",
-            marginRight: "1rem",
+            marginRight: "0.5rem",
             color: "#47a661",
             borderColor: "#47a661",
             textAlign: "center",
@@ -232,8 +232,6 @@ const CreateGroupModalContent: React.FC<CreateGroupModalContentProps> = (
             },
             color: "white",
           }}
-          // TODO: finish this
-          // onClick={() => {}}
         >
           Create
         </Button>

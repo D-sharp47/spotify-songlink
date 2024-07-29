@@ -9,6 +9,9 @@ import { setToken } from "../util/auth";
 import WebSocketInvalidator from "../util/WebSocketInvalidator";
 import { StoreType } from "../util/types";
 import axios from "../util/axiosApi";
+import React from "react";
+import Modal from "../components/Modal";
+import UserSettings from "../components/UserSettings";
 
 const RootLayout: React.FC = () => {
   const isLoggedIn = useSelector(
@@ -18,6 +21,12 @@ const RootLayout: React.FC = () => {
   const bgImage = isLoggedIn ? BG_Faded : SongLinkBG;
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [showSettingsModal, setShowSettingsModal] = React.useState(false);
+
+  const toggleSettingsModal = () => {
+    setShowSettingsModal(!showSettingsModal);
+  };
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -61,7 +70,7 @@ const RootLayout: React.FC = () => {
 
   return (
     <>
-      <Header />
+      <Header toggleSettingsModal={toggleSettingsModal} />
       <div
         style={{
           display: "flex",
@@ -77,6 +86,15 @@ const RootLayout: React.FC = () => {
         {isLoggedIn && <WebSocketInvalidator />}
         <Outlet />
       </div>
+      <Modal
+        title="Settings"
+        isOpen={showSettingsModal}
+        isSettingsModal
+        maxWidth="md"
+        showCloseIcon
+        dismissDialog={toggleSettingsModal}
+        contents={<UserSettings toggleSettingsModal={toggleSettingsModal} />}
+      />
     </>
   );
 };

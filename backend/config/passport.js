@@ -26,7 +26,10 @@ const passportConfig = (passport) => {
           } else {
             const newUser = new User({
               _id: profile.id,
-              _json: profile._json,
+              _json: {
+                ...profile._json,
+                image: profile._json.images[1] ?? undefined,
+              },
               refreshToken,
               friends: [],
             });

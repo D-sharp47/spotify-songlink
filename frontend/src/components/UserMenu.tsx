@@ -1,6 +1,7 @@
 import {
   Avatar,
   Box,
+  Divider,
   IconButton,
   Menu,
   MenuItem,
@@ -14,11 +15,17 @@ import { setCurrentUser } from "../store/authSlice";
 import { setToken } from "../util/auth";
 import { StoreType } from "../util/types";
 
-const UserMenu: React.FC = () => {
+interface UserMenuProps {
+  toggleSettingsModal: () => void;
+}
+
+const UserMenu: React.FC<UserMenuProps> = (props) => {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
-  const iconImg = useSelector((state: StoreType) => state.auth.user._json?.images[0]);
+  const iconImg = useSelector(
+    (state: StoreType) => state.auth.user._json?.image
+  );
   const displayName = useSelector(
     (state: StoreType) => state.auth.user?._json.display_name
   );
@@ -71,6 +78,10 @@ const UserMenu: React.FC = () => {
           open={Boolean(anchorElUser)}
           onClose={handleCloseUserMenu}
         >
+          <MenuItem onClick={() => props.toggleSettingsModal()}>
+            <Typography textAlign="center">Settings</Typography>
+          </MenuItem>
+          <Divider />
           <MenuItem onClick={handleLogout}>
             <Typography textAlign="center">Logout</Typography>
           </MenuItem>

@@ -14,9 +14,19 @@ const GroupDetailPage: React.FC = () => {
   const [playlistId, setPlaylistId] = useState(null);
 
   const groupId = useParams().groupId || "";
-  const isLoggedIn = useSelector(
-    (state: StoreType) => state.auth.isAuthenticated
-  );
+  const { userId, isLoggedIn } = useSelector((state: StoreType) => {
+    return {
+      userId: state.auth.user._id,
+      isLoggedIn: state.auth.isAuthenticated,
+      iconImg: state.auth.user._json?.image,
+      displayName: state.auth.user?._json.display_name,
+    };
+  });
+
+  const [value, setValue] = React.useState(0);
+  const [showGroupSettingsModal, setShowGroupSettingsModal] =
+    React.useState(false);
+  const [status, setStatus] = React.useState(undefined);
 
   const { data: group, isLoading: loadingGroup } = useQuery({
     queryKey: ["groups", "groupDetail", groupId],
@@ -29,21 +39,25 @@ const GroupDetailPage: React.FC = () => {
     if (group?.playlists.length > 0 && group?.playlists[0].created) {
       setPlaylistId(group.playlists[0].playlistId);
     }
+    if (group?.members.length > 0) {
+      setStatus(
+        group.members.find(
+          (member: { userId: string; status: string }) =>
+            member.userId === userId
+        ).status
+      );
+    }
   }, [group]);
-
-  const [value, setValue] = React.useState(0);
-  const [showGroupSettingsModal, setShowGroupSettingsModal] =
-    React.useState(false);
 
   const playlistsCreated = group?.playlists.filter(
     (p: { created: boolean }) => p.created === true
   ).length;
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue); // Update the selected tab index
+    setValue(newValue);
     const selectedPlaylist = group.playlists ? group.playlists[newValue] : null;
     if (selectedPlaylist) {
-      setPlaylistId(selectedPlaylist.playlistId); // Update the playlistId state
+      setPlaylistId(selectedPlaylist.playlistId);
     }
   };
 
@@ -78,12 +92,14 @@ const GroupDetailPage: React.FC = () => {
           <h1 style={{ color: "white", margin: "0 auto" }}>
             Group Name: {group.name}
           </h1>
-          <IconButton
-            onClick={() => setShowGroupSettingsModal(!showGroupSettingsModal)}
-            sx={{ position: "absolute", right: 0 }}
-          >
-            <SettingsIcon sx={{ color: "white" }} />
-          </IconButton>
+          {status === "admin" && (
+            <IconButton
+              onClick={() => setShowGroupSettingsModal(!showGroupSettingsModal)}
+              sx={{ position: "absolute", right: 0 }}
+            >
+              <SettingsIcon sx={{ color: "white" }} />
+            </IconButton>
+          )}
         </Stack>
 
         {playlistsCreated > 0 && (
@@ -116,7 +132,14 @@ const GroupDetailPage: React.FC = () => {
                 </Box>
               </Box>
             )}
-            <div style={{ position: "relative", width: "50%", height: "56%" }}>
+            <div
+              style={{
+                position: "relative",
+                width: "50%",
+                height: "480px",
+                maxHeight: "56%",
+              }}
+            >
               {group.playlists?.map(
                 (p: { playlistId: string }, index: number) => (
                   <iframe
@@ -140,24 +163,6 @@ const GroupDetailPage: React.FC = () => {
             </div>
           </>
         )}
-        {/* <Stack direction="row" spacing="25vh">
-        <div style={{ textAlign: "center" }}>
-          <h2 style={{ color: "white", marginBottom: 0 }}>Members:</h2>
-          <ul style={{ marginTop: 0 }}>
-            {group.members.map((member: { userId: string; status: string }) => (
-              <li key={member.userId}>
-                <p
-                  style={{
-                    color: member.userId === userId ? "#47a661" : "white",
-                  }} // for test commit
-                >
-                  {member.userId} - {member.status}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </Stack> */}
       </Box>
       <Modal
         title="Group Settings"

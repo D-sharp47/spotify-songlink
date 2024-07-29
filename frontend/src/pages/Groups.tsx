@@ -100,7 +100,7 @@ const GroupsPage: React.FC = () => {
                   sx={{
                     backgroundColor: "#2B2B2B",
                     width: "50%",
-                    p: "1rem",
+                    p: "0rem 1rem 1rem 1rem",
                     justifyContent: "center",
                     maxHeight: "728px",
                     overflowY: "auto",
@@ -112,6 +112,7 @@ const GroupsPage: React.FC = () => {
                         display: "flex",
                         flexDirection: "row",
                         alignItems: "center",
+                        mt: "1rem",
                       }}
                     >
                       <NavLink

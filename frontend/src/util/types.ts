@@ -13,11 +13,11 @@ export type StoreType = {
         display_name: string;
         href: string | null;
         id: string;
-        images: {
+        image: {
           url: string;
           height: number | null;
           width: number | null;
-        }[];
+        };
         type: string;
         uri: string;
       },

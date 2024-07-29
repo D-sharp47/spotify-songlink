@@ -118,11 +118,11 @@ const FriendsPage: React.FC = () => {
 export type friendDisplay = {
   friendId: string;
   friendName: string;
-  friendProfileImages: {
+  friendProfileImage: {
     url: string;
     height: number;
     width: number;
-  }[];
+  };
   status: string;
 };
 
@@ -171,7 +171,7 @@ const FriendsMap: React.FC<{
                     key={f.friendId}
                     friendId={f.friendId}
                     friendName={f.friendName}
-                    friendProfileImages={f.friendProfileImages}
+                    friendProfileImage={f.friendProfileImage}
                     friendStatus={f.status}
                   />
                 );

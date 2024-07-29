@@ -12,7 +12,11 @@ import { StoreType } from "../util/types";
 // Access the environment variable
 const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "https://songlink.co"; // Forcing for now
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  toggleSettingsModal: () => void;
+}
+
+const Header: React.FC<HeaderProps> = (props) => {
   const isLoggedIn = useSelector(
     (state: StoreType) => state.auth.isAuthenticated
   );
@@ -77,7 +81,7 @@ const Header: React.FC = () => {
                   </Button>
                 </NavLink>
               </Box>
-              <UserMenu />
+              <UserMenu toggleSettingsModal={props.toggleSettingsModal} />
             </>
           )}
           {!isLoggedIn && (

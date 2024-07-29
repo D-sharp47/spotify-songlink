@@ -60,13 +60,13 @@ const modifyFriend = async (req, res, friendId, action) => {
         user.friends.push({
           friendId: friend._id,
           friendName: friend._json.display_name ?? "No Display Name",
-          friendProfileImages: friend._json.images,
+          friendProfileImage: friend._json.image,
           status: "req_out",
         });
         friend.friends.push({
           friendId: user._id,
           friendName: user._json.display_name,
-          friendProfileImages: user._json.images,
+          friendProfileImage: user._json.image,
           status: "req_in",
         });
       }

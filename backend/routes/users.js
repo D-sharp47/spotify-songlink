@@ -11,6 +11,70 @@ router.get("/", async (req, res) => {
   getTracks(req, res, term);
 });
 
+router.get("/preferences", async (req, res) => {
+  const userId = req.query.userId;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json(user.settings);
+  } catch (error) {
+    console.error("Error fetching preferences:", error);
+    res.status(500).json({ message: "Error fetching preferences" });
+  }
+});
+
+router.put("/preferences", async (req, res) => {
+  const userId = req.query.userId;
+  const changes = req.body;
+
+  if (!changes.image && !changes.display_name && !changes.settings) {
+    return res.status(400).json({ message: "No valid changes provided" });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    changes.image && (user._json.image = changes.image);
+    changes.display_name && (user._json.display_name = changes.display_name);
+    changes.settings && (user.settings = changes.settings);
+    await user.save();
+
+    if (changes.image || changes.display_name) {
+      // Updates data that friend stores per user
+      await Promise.all(
+        user.friends.map(async (friend) => {
+          const friendUser = await User.findById(friend.friendId);
+          if (friendUser) {
+            const userAsFriend = friendUser.friends.find({ friendId: userId });
+            if (userAsFriend) {
+              changes.image && (userAsFriend.friendName = changes.display_name);
+              changes.display_name &&
+                (userAsFriend.friendName = changes.display_name);
+            } else {
+              console.error("User not found as friend:", userId);
+            }
+            await friendUser.save();
+          } else {
+            console.error("Friend not found:", friend.friendId);
+          }
+        })
+      );
+    }
+
+    return res.json(user.settings);
+  } catch (error) {
+    console.error("Error updating preferences:", error);
+    res.status(500).json({ message: "Error updating preferences" });
+  }
+});
+
 router.get("/search", async (req, res) => {
   try {
     const { searchTerm } = req.query;
@@ -131,7 +195,6 @@ export const setUserDataPlaylist = async (
   }
 
   if (!user.topSongs || !user.topSongs[term]?.created) {
-    console.log("setting playlist");
     const playlistId = await createUserDataPlaylist(
       token,
       userId,

@@ -12,11 +12,11 @@ import { acceptFriend, deleteFriend } from "../util/api";
 export interface FriendProps {
   readonly friendId: string;
   readonly friendName: string;
-  readonly friendProfileImages: {
+  readonly friendProfileImage: {
     url: string;
     height: number;
     width: number;
-  }[];
+  };
   readonly friendStatus: string;
 }
 
@@ -27,7 +27,7 @@ const actionDict: { [key: string]: string } = {
 };
 
 const Friend: React.FC<FriendProps> = (props) => {
-  const { friendId, friendName, friendProfileImages, friendStatus } = props;
+  const { friendId, friendName, friendProfileImage, friendStatus } = props;
 
   const handleRemove = async () => {
     try {
@@ -65,8 +65,8 @@ const Friend: React.FC<FriendProps> = (props) => {
               }}
               sx={{ p: 0 }}
             >
-              <Avatar src={friendProfileImages[0]?.url}>
-                {friendProfileImages[0]
+              <Avatar src={friendProfileImage?.url}>
+                {friendProfileImage
                   ? ""
                   : friendName.slice(0, 1).toUpperCase() ?? "?"}
               </Avatar>
