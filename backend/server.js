@@ -19,6 +19,7 @@ dotenv.config();
 const port = process.env.PORT || 8000;
 const host = "0.0.0.0";
 const frontendUrl = process.env.FRONTEND_URL;
+const dbName = process.env.DB_NAME;
 
 const app = express();
 const server = http.createServer(app);
@@ -26,7 +27,7 @@ const wss = new WebSocketServer({ server });
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, { dbName })
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 

@@ -26,6 +26,7 @@ jobs:
           echo "BACKEND_URL= http://3.140.8.141" >> backend/.env
           echo "FRONTEND_URL= https://songlink.co" >> backend/.env
           echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> backend/.env
+          echo "DB_NAME= prod" >> backend/.env
           echo "SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}" >> backend/.env
           echo "SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}" >> backend/.env
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> backend/.env
