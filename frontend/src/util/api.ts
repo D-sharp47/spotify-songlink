@@ -4,6 +4,20 @@ import { refreshToken } from "./auth";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "https://songlink.co";
 
+export const getImage = async (userId: string) => {
+  try {
+    const response = await axios.get(`${backendUrl}/api/users/image`, {
+      params: {
+        userId
+      }
+    });
+    return response.data.url;
+  } catch (error) {
+    console.error("Error fetching image:", error);
+    return null;
+  }
+};
+
 export const getUserSettings = async (userId: string) => {
   try {
     const response = await axios.get(`${backendUrl}/api/users/preferences`, {
@@ -32,6 +46,7 @@ export const updateUserSettings = async (userId: string, image: string | undefin
         userId
       }
     });
+
     return response;
   } catch (error) {
     console.error("Error updating user settings:", error);
@@ -134,10 +149,10 @@ export const searchUsers = async (searchTerm: string) => {
 
 export const fetchSongsByTerm = async (userID: string, term: string) => {
   try {
-    const response = await axios.get(`${backendUrl}/api/users?userId=${userID}&term=${term}`);
+    const response = await axios.get(`${backendUrl}/api/users/tracks?userId=${userID}&term=${term}`);
     if (response.status === 401) {
       await refreshToken();
-      const newResponse = await axios.get(`${backendUrl}/api/users?userId=${userID}&term=${term}`);
+      const newResponse = await axios.get(`${backendUrl}/api/users/tracks?userId=${userID}&term=${term}`);
       return newResponse.data;
     }
     return response.data;

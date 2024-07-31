@@ -14,7 +14,9 @@ export type StoreType = {
         href: string | null;
         id: string;
         image: {
-          url: string;
+          spotifyUrl: string;
+          overwritten: boolean;
+          s3key: string;
           height: number | null;
           width: number | null;
         };

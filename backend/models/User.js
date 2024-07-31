@@ -66,8 +66,10 @@ const UserSchema = new Schema({
         },
         friendProfileImage: {
           type: {
+            spotifyUrl: String,
+            overwritten: Boolean,
+            s3key: String,
             height: Number,
-            url: String,
             width: Number,
           },
           required: false,

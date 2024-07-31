@@ -28,7 +28,13 @@ const passportConfig = (passport) => {
               _id: profile.id,
               _json: {
                 ...profile._json,
-                image: profile._json.images[1] ?? undefined,
+                image: {
+                  spotifyUrl: profile._json.images[1].url ?? undefined,
+                  overwritten: false,
+                  s3key: undefined,
+                  height: 300,
+                  width: 300,
+                },
               },
               refreshToken,
               friends: [],

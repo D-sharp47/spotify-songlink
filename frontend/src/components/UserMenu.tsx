@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 import { setCurrentUser } from "../store/authSlice";
 import { setToken } from "../util/auth";
 import { StoreType } from "../util/types";
+import { useQuery } from "@tanstack/react-query";
+import { getImage } from "../util/api";
 
 interface UserMenuProps {
   toggleSettingsModal: () => void;
@@ -23,12 +25,18 @@ const UserMenu: React.FC<UserMenuProps> = (props) => {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
-  const iconImg = useSelector(
-    (state: StoreType) => state.auth.user._json?.image
-  );
-  const displayName = useSelector(
-    (state: StoreType) => state.auth.user?._json.display_name
-  );
+  const { userId, displayName } = useSelector((state: StoreType) => ({
+    userId: state.auth.user._json?.id,
+    displayName: state.auth.user._json.display_name,
+  }));
+
+  const { data: imgUrl, isLoading: loadingImg } = useQuery({
+    queryKey: ["image", userId],
+    queryFn: () => getImage(userId),
+    enabled: !!userId,
+    staleTime: 30 * 60 * 1000,
+  });
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -55,13 +63,15 @@ const UserMenu: React.FC<UserMenuProps> = (props) => {
           display: { md: "flex" },
         }}
       >
-        <Tooltip title="Open settings">
-          <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-            <Avatar alt={displayName} src={iconImg?.url}>
-              {iconImg ? "" : displayName.slice(0, 1).toUpperCase() ?? "?"}
-            </Avatar>
-          </IconButton>
-        </Tooltip>
+        {!loadingImg && (
+          <Tooltip title="Open settings">
+            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+              <Avatar alt={displayName} src={imgUrl}>
+                {imgUrl ? "" : displayName.slice(0, 1).toUpperCase() ?? "?"}
+              </Avatar>
+            </IconButton>
+          </Tooltip>
+        )}
         <Menu
           sx={{ mt: "45px" }}
           id="menu-appbar"

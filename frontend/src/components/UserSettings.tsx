@@ -14,25 +14,25 @@ import {
   alpha,
   styled,
 } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useRef, useState } from "react";
 import { StoreType } from "../util/types";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
-import { getUserSettings, updateUserSettings } from "../util/api";
+import { getImage, getUserSettings, updateUserSettings } from "../util/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { setCurrentUser } from "../store/authSlice";
 
 interface UserSettingsProps {
   toggleSettingsModal: () => void;
 }
 
 const UserSettings: React.FC<UserSettingsProps> = (props) => {
-  const { userId, isLoggedIn, iconImg, displayName } = useSelector(
+  const { userId, isLoggedIn, displayName } = useSelector(
     (state: StoreType) => {
       return {
         userId: state.auth.user._id,
         isLoggedIn: state.auth.isAuthenticated,
-        iconImg: state.auth.user._json?.image,
         displayName: state.auth.user?._json.display_name,
       };
     }
@@ -40,6 +40,13 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
   if (userId && !isLoggedIn) {
     console.log("User is not logged in");
   }
+
+  const { data: imgUrl } = useQuery({
+    queryKey: ["image", userId],
+    queryFn: () => getImage(userId),
+    enabled: !!userId,
+    staleTime: 30 * 60 * 1000,
+  });
 
   const { data: settings, isLoading: loadingSettings } = useQuery({
     queryKey: ["settings"],
@@ -49,34 +56,38 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
   });
 
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    iconImg?.url || undefined
+    imgUrl
   );
   const [newDisplayName, setNewDisplayName] = useState(displayName);
   const [editDisplayName, setEditDisplayName] = useState(false);
   const [autoFollow, setAutoFollow] = useState(false);
   const [autoUnfollow, setAutoUnfollow] = useState(false);
   const queryClient = useQueryClient();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (settings) {
-      // setSelectedImage(settings.image);
-      // setNewDisplayName(settings.display_name);
       setAutoFollow(settings.autoFollowPlaylistsOnCreate);
       setAutoUnfollow(settings.autoUnfollowPlaylistsOnLeave);
     }
   }, [settings]);
 
   const handleSave = async () => {
-    props.toggleSettingsModal();
     const response = await updateUserSettings(
       userId,
-      (selectedImage !== iconImg?.url && selectedImage) || undefined,
+      selectedImage !== imgUrl ? selectedImage : undefined,
       newDisplayName,
       autoFollow,
       autoUnfollow
     );
+    props.toggleSettingsModal();
     if (response && response.status < 300) {
       queryClient.invalidateQueries({ queryKey: ["settings"] });
+      queryClient.invalidateQueries({ queryKey: ["image", userId] });
+    }
+
+    if (response?.data._json.image.overwritten) {
+      dispatch(setCurrentUser(response.data));
     }
   };
 
@@ -88,7 +99,7 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
         <Stack direction="row" sx={{ margin: "1rem" }}>
           <AvatarWithHoverActions
             displayName={displayName}
-            iconImg={iconImg}
+            imgUrl={imgUrl}
             selectedImage={selectedImage}
             setSelectedImage={setSelectedImage}
           />
@@ -262,11 +273,11 @@ const GreenSwitch = styled(Switch)(({ theme }) => ({
 
 const AvatarWithHoverActions: React.FC<{
   displayName: string;
-  iconImg: { url: string; height: number | null; width: number | null } | null;
+  imgUrl: string | undefined;
   selectedImage?: string;
   setSelectedImage: (image?: string) => void;
 }> = (props) => {
-  const { displayName, iconImg, selectedImage, setSelectedImage } = props;
+  const { displayName, imgUrl, selectedImage, setSelectedImage } = props;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChoosePhotoClick = () => {
@@ -335,9 +346,9 @@ const AvatarWithHoverActions: React.FC<{
           onClick={handleChoosePhotoClick}
         >
           <Typography variant="body2">Choose photo</Typography>{" "}
-          {!iconImg?.url && <EditIcon sx={{ ml: "0.25rem" }} />}
+          {imgUrl && <EditIcon sx={{ ml: "0.25rem" }} />}
         </Button>
-        {iconImg?.url && (
+        {imgUrl && (
           <>
             <EditIcon sx={{ mb: "0.5rem", width: 30, height: 30 }} />
             <Button
@@ -348,7 +359,7 @@ const AvatarWithHoverActions: React.FC<{
                 },
               }}
               onClick={() => {
-                setSelectedImage(selectedImage ? undefined : iconImg.url);
+                setSelectedImage(selectedImage ? undefined : imgUrl);
               }}
             >
               <Typography variant="body2">

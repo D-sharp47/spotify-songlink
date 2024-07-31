@@ -11,6 +11,7 @@
   "type": "module",
   "description": "",
   "dependencies": {
+    "aws-sdk": "^2.1665.0",
     "axios": "^1.7.2",
     "colors": "^1.4.0",
     "dotenv": "^16.4.5",
@@ -23,6 +24,7 @@
     "nodemon": "^3.1.2",
     "passport": "^0.7.0",
     "passport-spotify": "^2.0.0",
+    "uuid": "^10.0.0",
     "ws": "^8.17.1"
   }
 }

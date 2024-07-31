@@ -13,6 +13,7 @@ const WebSocketInvalidator = () => {
   const handleWebSocketMessage = (message: MessageEvent) => {
     if (!userId) return;
     const data = JSON.parse(message.data);
+    let match;
     switch (data.message) {
       case "groupDataChanged":
         queryClient.invalidateQueries({ queryKey: ["groups"] });
@@ -21,6 +22,11 @@ const WebSocketInvalidator = () => {
         queryClient.invalidateQueries({ queryKey: ["friends"] });
         break;
       default:
+        match = data.message.match(/^friendImageChanged_id=(.+)$/);
+        if (match) {
+          const friendId = match[1];
+          queryClient.invalidateQueries({ queryKey: ["image", friendId] });
+        }
         break;
     }
   };

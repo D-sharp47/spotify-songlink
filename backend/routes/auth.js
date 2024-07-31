@@ -23,7 +23,6 @@ router.get(
   }),
   (req, res) => {
     const { user, accessToken, refreshToken, expires_in } = req.user;
-    console.log("User:", user);
     const userAndTokens = {
       user,
       tokens: { accessToken, refreshToken, expires_in },

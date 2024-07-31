@@ -7,16 +7,12 @@ import {
   Typography,
 } from "@mui/material";
 import { AxiosError } from "axios";
-import { acceptFriend, deleteFriend } from "../util/api";
+import { acceptFriend, deleteFriend, getImage } from "../util/api";
+import { useQuery } from "@tanstack/react-query";
 
 export interface FriendProps {
   readonly friendId: string;
   readonly friendName: string;
-  readonly friendProfileImage: {
-    url: string;
-    height: number;
-    width: number;
-  };
   readonly friendStatus: string;
 }
 
@@ -27,7 +23,14 @@ const actionDict: { [key: string]: string } = {
 };
 
 const Friend: React.FC<FriendProps> = (props) => {
-  const { friendId, friendName, friendProfileImage, friendStatus } = props;
+  const { friendId, friendName, friendStatus } = props;
+
+  const { data: friendProfileImg, isLoading: loadingfriendProfileImg } =
+    useQuery({
+      queryKey: ["image", friendId],
+      queryFn: () => getImage(friendId),
+      staleTime: 30 * 60 * 1000,
+    });
 
   const handleRemove = async () => {
     try {
@@ -65,11 +68,13 @@ const Friend: React.FC<FriendProps> = (props) => {
               }}
               sx={{ p: 0 }}
             >
-              <Avatar src={friendProfileImage?.url}>
-                {friendProfileImage
-                  ? ""
-                  : friendName.slice(0, 1).toUpperCase() ?? "?"}
-              </Avatar>
+              {!loadingfriendProfileImg && friendProfileImg && (
+                <Avatar src={friendProfileImg}>
+                  {friendProfileImg
+                    ? ""
+                    : friendName.slice(0, 1).toUpperCase() ?? "?"}
+                </Avatar>
+              )}
             </IconButton>
             <Stack direction="column" spacing={0}>
               <Typography variant="body1" sx={{ color: "white", mr: "1rem" }}>
