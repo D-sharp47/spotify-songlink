@@ -27,8 +27,10 @@ const UserSchema = new Schema({
       required: true,
     },
     image: {
+      spotifyUrl: String,
+      overwritten: Boolean,
+      s3key: String,
       height: Number,
-      url: String,
       width: Number,
     },
     type: {

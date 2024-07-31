@@ -1,7 +1,17 @@
 import express from "express";
+import AWS from "aws-sdk";
+import { v4 as uuidv4 } from "uuid";
+import dotenv from "dotenv";
 import axios from "axios";
 import User from "../models/User.js";
 import { addTracksToPlaylist, createPlaylist } from "./routine.js";
+
+dotenv.config();
+const s3 = new AWS.S3();
+const aws_access_key_id = process.env.AWS_ACCESS_KEY_ID;
+const aws_secret_access_key = process.env.AWS_SECRET_ACCESS_KEY;
+const aws_region = process.env.AWS_REGION;
+const s3_bucket = process.env.AWS_S3_BUCKET_NAME;
 
 const router = express.Router();
 
@@ -31,6 +41,44 @@ router.put("/preferences", async (req, res) => {
   const userId = req.query.userId;
   const { image, display_name, settings } = req.body;
 
+  if (image) {
+    const mimeType = image.match(/data:image\/(\w+);base64,/)[1];
+    const extension = mimeType === "jpeg" ? "jpeg" : "png";
+
+    const buffer = Buffer.from(
+      image.replace(/^data:image\/\w+;base64,/, ""),
+      "base64"
+    );
+    const key = `${uuidv4()}.jpeg`;
+
+    const params = {
+      Bucket: s3_bucket,
+      Key: key,
+      Body: buffer,
+      ContentEncoding: "base64",
+      ContentType: `image/${extension}`,
+    };
+
+    try {
+      await s3.upload(params).promise();
+
+      const newImage = { image_url: key };
+
+      return res
+        .status(200)
+        .send({ message: "Image uploaded successfully", key });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Error uploading image");
+    }
+  }
+
+  const imageObj = {
+    url: image,
+    height: 300,
+    width: 300,
+  };
+
   if (!image && !display_name && !settings) {
     return res.status(400).json({ message: "No valid changes provided" });
   }
@@ -42,7 +90,7 @@ router.put("/preferences", async (req, res) => {
     }
 
     // Apply changes
-    if (image) user._json.image = image;
+    if (image) user._json.image = imageObj;
     if (display_name) user._json.display_name = display_name;
     if (settings) user.settings = settings;
 
@@ -57,7 +105,7 @@ router.put("/preferences", async (req, res) => {
               (f) => f.friendId === userId
             );
             if (userAsFriend) {
-              if (image) userAsFriend.friendProfileImage = image;
+              if (image) userAsFriend.friendProfileImage = imageObj;
               if (display_name) userAsFriend.friendName = display_name;
               await friendUser.save();
             } else {
