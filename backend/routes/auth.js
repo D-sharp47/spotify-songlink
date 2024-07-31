@@ -23,8 +23,9 @@ router.get(
   }),
   (req, res) => {
     const { user, accessToken, refreshToken, expires_in } = req.user;
+    console.log("User:", user);
     const userAndTokens = {
-      user: user,
+      user,
       tokens: { accessToken, refreshToken, expires_in },
     };
     const encodedUserAndTokenString = encodeURIComponent(

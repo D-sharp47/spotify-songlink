@@ -59,7 +59,7 @@ export const tokenLoader = async () => {
   return await getAuthToken();
 }
 
-const refreshToken = async () => {
+export const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refreshToken');
 
   if (!refreshToken) {

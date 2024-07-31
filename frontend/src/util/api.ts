@@ -1,5 +1,6 @@
 import axios from "../util/axiosApi";
 import { AxiosError } from "axios";
+import { refreshToken } from "./auth";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "https://songlink.co";
 
@@ -134,6 +135,11 @@ export const searchUsers = async (searchTerm: string) => {
 export const fetchSongsByTerm = async (userID: string, term: string) => {
   try {
     const response = await axios.get(`${backendUrl}/api/users?userId=${userID}&term=${term}`);
+    if (response.status === 401) {
+      await refreshToken();
+      const newResponse = await axios.get(`${backendUrl}/api/users?userId=${userID}&term=${term}`);
+      return newResponse.data;
+    }
     return response.data;
   } catch (error) {
     console.error("Error fetching songs:", error);

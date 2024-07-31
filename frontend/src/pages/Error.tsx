@@ -1,7 +1,8 @@
-import { useRouteError } from "react-router-dom";
+import { NavLink, useRouteError } from "react-router-dom";
 import PageContent from "../components/PageContent";
 import Header from "../components/Header";
 import React from "react";
+import { Button } from "@mui/material";
 
 interface Error {
   status: number;
@@ -38,6 +39,23 @@ const ErrorPage: React.FC = () => {
       <Header toggleSettingsModal={toggleSettingsModal} />
       <PageContent title={title}>
         <p>{message}</p>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <NavLink to="/">
+            <Button
+              variant="contained"
+              size="large"
+              sx={{
+                marginTop: 2,
+                backgroundColor: "#47a661",
+                "&:hover": {
+                  backgroundColor: "#367a4e",
+                },
+              }}
+            >
+              Return to Homepage
+            </Button>
+          </NavLink>
+        </div>
       </PageContent>
     </>
   );
