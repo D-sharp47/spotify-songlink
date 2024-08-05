@@ -55,9 +55,10 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
     staleTime: 30 * 60 * 1000,
   });
 
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(
+  const [selectedImage, setSelectedImage] = useState<string | null | undefined>(
     imgUrl
   );
+  const [useSpotifyImg, setUseSpotifyImg] = useState(true);
   const [newDisplayName, setNewDisplayName] = useState(displayName);
   const [editDisplayName, setEditDisplayName] = useState(false);
   const [autoFollow, setAutoFollow] = useState(false);
@@ -67,6 +68,7 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
 
   useEffect(() => {
     if (settings) {
+      setUseSpotifyImg(settings.useSpotifyImg);
       setAutoFollow(settings.autoFollowPlaylistsOnCreate);
       setAutoUnfollow(settings.autoUnfollowPlaylistsOnLeave);
     }
@@ -75,7 +77,8 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
   const handleSave = async () => {
     const response = await updateUserSettings(
       userId,
-      selectedImage !== imgUrl ? selectedImage : undefined,
+      selectedImage !== imgUrl && !useSpotifyImg ? selectedImage : undefined,
+      useSpotifyImg,
       newDisplayName,
       autoFollow,
       autoUnfollow
@@ -102,6 +105,8 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
             imgUrl={imgUrl}
             selectedImage={selectedImage}
             setSelectedImage={setSelectedImage}
+            useSpotifyImg={settings?.useSpotifyImg ?? true}
+            setUseSpotifyImg={setUseSpotifyImg}
           />
           <Stack
             direction="column"
@@ -147,7 +152,39 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
             </Stack>
           </Stack>
         </Stack>
-        <Stack direction="row" sx={{ alignItems: "center", ml: "2rem" }}>
+        <FormGroup>
+          <Stack
+            direction="row"
+            sx={{
+              width: "100%",
+              justifyContent: "space-between",
+              my: "1rem",
+            }}
+          >
+            <Stack direction="row" sx={{ alignItems: "center", ml: "2rem" }}>
+              <Typography variant="h6">
+                Use Spotify-provided profile photo.
+              </Typography>
+              <Tooltip title="Will revert photo on SongLink to ingested spotify photo.">
+                <InfoIcon sx={{ height: 15, width: 15, ml: "0.5rem" }} />
+              </Tooltip>
+            </Stack>
+            <FormControlLabel
+              control={
+                <GreenSwitch
+                  checked={useSpotifyImg}
+                  disabled={settings?.useSpotifyImg && imgUrl === selectedImage}
+                  onChange={async () => {
+                    setUseSpotifyImg(!useSpotifyImg);
+                    setSelectedImage(await getImage(userId, true));
+                  }}
+                />
+              }
+              label={useSpotifyImg ? "On" : "Off"}
+            />
+          </Stack>
+        </FormGroup>
+        <Stack direction="row" sx={{ alignItems: "center", ml: "2rem", p: 0 }}>
           <Typography variant="body2">
             Note: Updating Profile Picture and Display name will NOT make
             changes in Spotify.
@@ -269,15 +306,42 @@ const GreenSwitch = styled(Switch)(({ theme }) => ({
   "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
     backgroundColor: "#47a661",
   },
+  "& .MuiSwitch-switchBase.Mui-disabled": {
+    color: alpha("#47a661", theme.palette.action.disabledOpacity),
+  },
+  "& .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track": {
+    backgroundColor: alpha("#47a661", theme.palette.action.disabledOpacity),
+  },
+  "& .MuiSwitch-thumb": {
+    backgroundColor: "#47a661",
+  },
+  "& .MuiSwitch-track": {
+    backgroundColor: alpha("#47a661", theme.palette.action.disabledOpacity),
+  },
+  "& .MuiSwitch-switchBase.Mui-disabled .MuiSwitch-thumb": {
+    backgroundColor: alpha("#47a661", theme.palette.action.disabledOpacity),
+  },
+  "& .MuiSwitch-switchBase.Mui-disabled .MuiSwitch-track": {
+    backgroundColor: alpha("#47a661", theme.palette.action.disabledOpacity),
+  },
 }));
 
 const AvatarWithHoverActions: React.FC<{
   displayName: string;
   imgUrl: string | undefined;
-  selectedImage?: string;
-  setSelectedImage: (image?: string) => void;
+  selectedImage: string | null | undefined;
+  setSelectedImage: (image: string | null | undefined) => void;
+  useSpotifyImg: boolean;
+  setUseSpotifyImg: (useSpotifyImage: boolean) => void;
 }> = (props) => {
-  const { displayName, imgUrl, selectedImage, setSelectedImage } = props;
+  const {
+    displayName,
+    imgUrl,
+    selectedImage,
+    setSelectedImage,
+    useSpotifyImg,
+    setUseSpotifyImg,
+  } = props;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChoosePhotoClick = () => {
@@ -294,6 +358,7 @@ const AvatarWithHoverActions: React.FC<{
       const reader = new FileReader();
       reader.onloadend = () => {
         setSelectedImage(reader.result as string);
+        setUseSpotifyImg(false);
       };
       reader.readAsDataURL(file);
     }
@@ -312,7 +377,7 @@ const AvatarWithHoverActions: React.FC<{
     >
       <Avatar
         alt={displayName}
-        src={selectedImage}
+        src={selectedImage ?? undefined}
         sx={{ width: 180, height: 180, fontSize: 60 }}
       >
         {selectedImage ? "" : displayName.slice(0, 1).toUpperCase() ?? "?"}
@@ -359,7 +424,8 @@ const AvatarWithHoverActions: React.FC<{
                 },
               }}
               onClick={() => {
-                setSelectedImage(selectedImage ? undefined : imgUrl);
+                setSelectedImage(selectedImage ? null : imgUrl);
+                setUseSpotifyImg(false);
               }}
             >
               <Typography variant="body2">

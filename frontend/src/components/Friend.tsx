@@ -68,7 +68,7 @@ const Friend: React.FC<FriendProps> = (props) => {
               }}
               sx={{ p: 0 }}
             >
-              {!loadingfriendProfileImg && friendProfileImg && (
+              {!loadingfriendProfileImg && (
                 <Avatar src={friendProfileImg}>
                   {friendProfileImg
                     ? ""

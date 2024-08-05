@@ -148,6 +148,10 @@ const UserSchema = new Schema({
   },
   settings: {
     type: {
+      useSpotifyImg: {
+        type: Boolean,
+        required: true,
+      },
       autoFollowPlaylistsOnCreate: {
         type: Boolean,
         required: true,
@@ -159,6 +163,7 @@ const UserSchema = new Schema({
     },
     required: true,
     default: {
+      useSpotifyImg: true,
       autoFollowPlaylistsOnCreate: false,
       autoUnfollowPlaylistsOnLeave: false,
     },

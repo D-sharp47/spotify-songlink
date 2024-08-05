@@ -37,6 +37,8 @@ const UserMenu: React.FC<UserMenuProps> = (props) => {
     staleTime: 30 * 60 * 1000,
   });
 
+  console.log("imgUrl", imgUrl);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

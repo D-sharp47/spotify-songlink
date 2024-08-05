@@ -14,9 +14,17 @@ const router = express.Router();
 
 router.get("/image", async (req, res) => {
   const userId = req.query.userId;
+  const useSpotifyImg = req.query.spotify === "true";
   const user = await User.findById(userId);
-  if (!user?._json.image.s3key) {
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+    rs;
+  }
+  if (useSpotifyImg || user.settings.useSpotifyImg) {
     return res.status(200).send({ url: user._json.image.spotifyUrl });
+  }
+  if (user._json.image.overwritten && !user._json.image?.s3key) {
+    return res.status(202).send({ url: undefined });
   }
 
   const params = {
@@ -60,6 +68,7 @@ router.put("/preferences", async (req, res) => {
   const { image, display_name, settings } = req.body;
 
   let key = null;
+  let backToSpotifyImg = false;
 
   if (image) {
     const mimeType = image.match(/data:image\/(\w+);base64,/)[1];
@@ -98,29 +107,42 @@ router.put("/preferences", async (req, res) => {
     }
   }
 
-  if (!image && !display_name && !settings) {
+  if (image === undefined && !display_name && !settings) {
     return res.status(400).json({ message: "No valid changes provided" });
   }
 
+  const notifyClients = req.app.get("notifyClients");
   try {
     const user = await User.findById(userId);
+    if (image === null) {
+      if (user._json.image.s3key) {
+        const deleteParams = {
+          Bucket: s3_bucket,
+          Key: user._json.image.s3key,
+        };
+        await s3.deleteObject(deleteParams).promise();
+      }
+      user._json.image.s3key = undefined;
+      const friendIds = user.friends.map((f) => f.friendId);
+      notifyClients(friendIds, `friendImageChanged_id=${userId}`);
+    }
     if (key) {
       user._json.image.overwritten = true;
       user._json.image.s3key = key;
       const friendIds = user.friends.map((f) => f.friendId);
-      const notifyClients = req.app.get("notifyClients");
       notifyClients(friendIds, `friendImageChanged_id=${userId}`);
     }
     if (display_name) {
       user._json.display_name = display_name;
     }
     if (settings) {
+      backToSpotifyImg = settings.useSpotifyImg && !user.settings.useSpotifyImg;
       user.settings = settings;
     }
 
     await user.save();
 
-    if (image || display_name) {
+    if (image || display_name || backToSpotifyImg) {
       await Promise.all(
         user.friends.map(async (friend) => {
           const friendUser = await User.findById(friend.friendId);
@@ -140,6 +162,11 @@ router.put("/preferences", async (req, res) => {
           }
         })
       );
+    }
+
+    if (backToSpotifyImg) {
+      const friendIds = user.friends.map((f) => f.friendId);
+      notifyClients(friendIds, `friendImageChanged_id=${userId}`);
     }
 
     return res.status(200).json(user);

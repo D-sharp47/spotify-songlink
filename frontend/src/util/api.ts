@@ -4,14 +4,15 @@ import { refreshToken } from "./auth";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "https://songlink.co";
 
-export const getImage = async (userId: string) => {
+export const getImage = async (userId: string, spotify: boolean = false) => {
   try {
-    const response = await axios.get(`${backendUrl}/api/users/image`, {
+    const response = await axios.get(`${backendUrl}/api/users/image`,{
       params: {
-        userId
+        userId,
+        spotify
       }
     });
-    return response.data.url;
+    return response.data.url ?? null;
   } catch (error) {
     console.error("Error fetching image:", error);
     return null;
@@ -32,12 +33,13 @@ export const getUserSettings = async (userId: string) => {
   }
 };
 
-export const updateUserSettings = async (userId: string, image: string | undefined, display_name: string, autoFollowPlaylistsOnCreate: boolean, autoUnfollowPlaylistsOnLeave: boolean) => {
+export const updateUserSettings = async (userId: string, image: string | null | undefined, useSpotifyImg: boolean, display_name: string, autoFollowPlaylistsOnCreate: boolean, autoUnfollowPlaylistsOnLeave: boolean) => {
   try {
     const response = await axios.put(`${backendUrl}/api/users/preferences`, {
       image,
       display_name,
       settings: {
+        useSpotifyImg,
         autoFollowPlaylistsOnCreate,
         autoUnfollowPlaylistsOnLeave
       }
