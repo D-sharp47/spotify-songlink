@@ -8,7 +8,23 @@ import { StoreType } from "../util/types";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Modal from "../components/Modal";
-import CreateGroup from "../components/CreateGroup";
+import GroupSettings from "../components/GroupSettings";
+
+export type GroupDetail = {
+  _id: string;
+  name: string;
+  creatorId: string;
+  members: { userId: string; status: string; _id: string }[];
+  playlists?: {
+    name?: string;
+    created?: boolean;
+    followers?: string[];
+    _id?: string;
+    contributions?: { userId: string; tracks: string[]; _id: string }[];
+    playlistId?: string;
+  }[];
+  settings: { songsPerMember: number; enabled: boolean };
+};
 
 const GroupDetailPage: React.FC = () => {
   const [playlistId, setPlaylistId] = useState(null);
@@ -89,9 +105,7 @@ const GroupDetailPage: React.FC = () => {
               sx={{ color: "white", position: "absolute", left: 0 }}
             />
           </NavLink>
-          <h1 style={{ color: "white", margin: "0 auto" }}>
-            Group Name: {group.name}
-          </h1>
+          <h1 style={{ color: "white", margin: "0 auto" }}>{group.name}</h1>
           {status === "admin" && (
             <IconButton
               onClick={() => setShowGroupSettingsModal(!showGroupSettingsModal)}
@@ -164,19 +178,24 @@ const GroupDetailPage: React.FC = () => {
           </>
         )}
       </Box>
-      <Modal
-        title="Group Settings"
-        isOpen={showGroupSettingsModal}
-        maxWidth="md"
-        dismissDialog={() => setShowGroupSettingsModal(!showGroupSettingsModal)}
-        contents={
-          <CreateGroup
-            toggleGroupModal={() =>
-              setShowGroupSettingsModal(!showGroupSettingsModal)
-            }
-          />
-        }
-      />
+      {group && (
+        <Modal
+          title="Group Settings"
+          isOpen={showGroupSettingsModal}
+          maxWidth="md"
+          dismissDialog={() =>
+            setShowGroupSettingsModal(!showGroupSettingsModal)
+          }
+          contents={
+            <GroupSettings
+              toggleGroupSettingsModal={() =>
+                setShowGroupSettingsModal(!showGroupSettingsModal)
+              }
+              group={group}
+            />
+          }
+        />
+      )}
     </>
   );
 };

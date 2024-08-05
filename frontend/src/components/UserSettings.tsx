@@ -8,11 +8,8 @@ import {
   TextField,
   Divider,
   Tooltip,
-  Switch,
   FormControlLabel,
   FormGroup,
-  alpha,
-  styled,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useRef, useState } from "react";
@@ -22,6 +19,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import { getImage, getUserSettings, updateUserSettings } from "../util/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { setCurrentUser } from "../store/authSlice";
+import GreenSwitch from "./GreenSwitch";
 
 interface UserSettingsProps {
   toggleSettingsModal: () => void;
@@ -105,7 +103,6 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
             imgUrl={imgUrl}
             selectedImage={selectedImage}
             setSelectedImage={setSelectedImage}
-            useSpotifyImg={settings?.useSpotifyImg ?? true}
             setUseSpotifyImg={setUseSpotifyImg}
           />
           <Stack
@@ -296,42 +293,11 @@ const UserSettings: React.FC<UserSettingsProps> = (props) => {
   );
 };
 
-const GreenSwitch = styled(Switch)(({ theme }) => ({
-  "& .MuiSwitch-switchBase.Mui-checked": {
-    color: "#47a661",
-    "&:hover": {
-      backgroundColor: alpha("#47a661", theme.palette.action.hoverOpacity),
-    },
-  },
-  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-    backgroundColor: "#47a661",
-  },
-  "& .MuiSwitch-switchBase.Mui-disabled": {
-    color: alpha("#47a661", theme.palette.action.disabledOpacity),
-  },
-  "& .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track": {
-    backgroundColor: alpha("#47a661", theme.palette.action.disabledOpacity),
-  },
-  "& .MuiSwitch-thumb": {
-    backgroundColor: "#47a661",
-  },
-  "& .MuiSwitch-track": {
-    backgroundColor: alpha("#47a661", theme.palette.action.disabledOpacity),
-  },
-  "& .MuiSwitch-switchBase.Mui-disabled .MuiSwitch-thumb": {
-    backgroundColor: alpha("#47a661", theme.palette.action.disabledOpacity),
-  },
-  "& .MuiSwitch-switchBase.Mui-disabled .MuiSwitch-track": {
-    backgroundColor: alpha("#47a661", theme.palette.action.disabledOpacity),
-  },
-}));
-
 const AvatarWithHoverActions: React.FC<{
   displayName: string;
   imgUrl: string | undefined;
   selectedImage: string | null | undefined;
   setSelectedImage: (image: string | null | undefined) => void;
-  useSpotifyImg: boolean;
   setUseSpotifyImg: (useSpotifyImage: boolean) => void;
 }> = (props) => {
   const {
@@ -339,7 +305,6 @@ const AvatarWithHoverActions: React.FC<{
     imgUrl,
     selectedImage,
     setSelectedImage,
-    useSpotifyImg,
     setUseSpotifyImg,
   } = props;
   const fileInputRef = useRef<HTMLInputElement>(null);
